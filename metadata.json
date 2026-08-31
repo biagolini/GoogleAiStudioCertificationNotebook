@@ -1,0 +1,6 @@
+{
+  "name": "CertStudy",
+  "description": "A personal study companion for professional certification exams with notes, question banks, mock exams, timer controls, and text annotation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

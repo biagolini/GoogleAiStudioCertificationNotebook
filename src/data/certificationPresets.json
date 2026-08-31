@@ -1,0 +1,318 @@
+[
+  {
+    "id": "preset-aws-dea-c01",
+    "name": "AWS Certified Data Engineer – Associate (DEA-C01)",
+    "code": "DEA-C01",
+    "version": "",
+    "color": "#fdcb6e",
+    "icon": "Server",
+    "examDurationMinutes": 130,
+    "accommodationMinutes": 30,
+    "questionCount": 65,
+    "passingScore": "720/1000",
+    "description": "Associate-level certification for data engineers who implement and manage data pipelines on AWS. Validates ability to ingest, transform, and orchestrate data solutions. 1+ years hands-on experience with data engineering. 65 questions, 130 minutes.",
+    "exportIntroQuestions": "## About this document\n\nThis document is a collection of practice exam questions for the **AWS Certified Data Engineer – Associate (DEA-C01)** certification. The questions were selected because they represent realistic data engineering scenarios commonly encountered when building and managing data pipelines on AWS.\n\n### Certification context\n\nThis certification validates the ability to implement and manage data pipelines and data stores on AWS, including topics such as:\n\n* Designing data ingestion solutions (Kinesis, Glue, DMS, MSK)\n* Implementing data transformation and ETL workflows\n* Managing data stores (S3, RDS, DynamoDB, Redshift, OpenSearch)\n* Automating and monitoring data pipelines\n* Implementing data security, governance, and compliance controls\n\n### About the questions\n\nEach question in this document is independent and should be analyzed as a standalone scenario. Practice exams intentionally present isolated situations, and questions may appear in any order during the actual certification exam. Information from one question should never be assumed to apply to another.\n\nFor each scenario, this document includes:\n\n* The original practice exam question.\n* An explanation of the data engineering reasoning behind the correct answer.\n* A discussion of why the remaining options are less appropriate for the stated requirements.\n\n### Learning objective\n\nThe primary goal of this material is to develop data engineering reasoning rather than memorization. The focus should be on understanding the data requirements and constraints presented in each scenario, identifying the AWS data services and pipeline patterns that best satisfy those requirements, and recognizing the trade-offs between performance, cost, and complexity.\n\nBy studying the decision-making process behind each answer, readers can build the data engineering skills expected for the AWS certification exam.",
+    "exportIntroTranscripts": "## About this document\n\nThis document contains technical summaries of lesson transcripts related to the **AWS Certified Data Engineer – Associate (DEA-C01)** certification.\n\n### Purpose\nOrganizes and synthesizes lesson content in a structured format for quick review and deeper understanding of the concepts presented.",
+    "exportIntroChat": "## About this document\n\nThis document contains AI study conversations related to the **AWS Certified Data Engineer – Associate (DEA-C01)** certification.\n\n### Purpose\nRecords discussions and explanations generated during interactive AI study sessions, serving as complementary reference material.",
+    "domains": [
+      {
+        "name": "Data Ingestion and Transformation",
+        "order": 1,
+        "description": "Domain 1 (34%): Choose appropriate data ingestion services (Kinesis, Glue, DMS). Design and implement data transformation solutions. Orchestrate data pipelines."
+      },
+      {
+        "name": "Data Store Management",
+        "order": 2,
+        "description": "Domain 2 (26%): Design data stores (S3, RDS, DynamoDB, Redshift). Manage data lifecycle, implement data catalog and schema management."
+      },
+      {
+        "name": "Data Operations and Support",
+        "order": 3,
+        "description": "Domain 3 (22%): Automate data processing, manage and monitor data pipelines, ensure data quality."
+      },
+      {
+        "name": "Data Security and Governance",
+        "order": 4,
+        "description": "Domain 4 (18%): Apply authentication and authorization mechanisms, implement data encryption, ensure data governance and compliance."
+      }
+    ]
+  },
+  {
+    "id": "preset-aws-dop-c02",
+    "name": "AWS Certified DevOps Engineer – Professional (DOP-C02)",
+    "code": "DOP-C02",
+    "version": "",
+    "color": "#d63031",
+    "icon": "Terminal",
+    "examDurationMinutes": 180,
+    "accommodationMinutes": 30,
+    "questionCount": 75,
+    "passingScore": "750/1000",
+    "description": "Professional-level certification for DevOps engineers provisioning, operating, and managing distributed systems on AWS. Validates ability to implement CI/CD, monitoring, incident response, and security automation. 2+ years hands-on experience. 75 questions, 180 minutes, 750/1000 passing score.",
+    "exportIntroQuestions": "## About this document\n\nThis document is a collection of practice exam questions for the **AWS Certified DevOps Engineer – Professional (DOP-C02)** certification. The questions were selected because they represent realistic DevOps scenarios commonly encountered when implementing CI/CD, automation, and operational excellence on AWS.\n\n### Certification context\n\nThis certification validates the ability to provision, operate, and manage distributed systems on AWS, including topics such as:\n\n* Implementing CI/CD pipelines (CodePipeline, CodeBuild, CodeDeploy)\n* Managing infrastructure as code (CloudFormation, CDK) with drift detection\n* Designing highly available and fault-tolerant architectures\n* Configuring monitoring, alerting, and automated remediation\n* Implementing incident response workflows and security automation\n\n### About the questions\n\nEach question in this document is independent and should be analyzed as a standalone scenario. Practice exams intentionally present isolated situations, and questions may appear in any order during the actual certification exam. Information from one question should never be assumed to apply to another.\n\nFor each scenario, this document includes:\n\n* The original practice exam question.\n* An explanation of the DevOps reasoning behind the correct answer.\n* A discussion of why the remaining options are less appropriate for the stated requirements.\n\n### Learning objective\n\nThe primary goal of this material is to develop DevOps and automation reasoning rather than memorization. The focus should be on understanding the operational requirements presented in each scenario, identifying the AWS services and automation patterns that best satisfy those requirements, and recognizing the trade-offs between speed, reliability, and complexity.\n\nBy studying the decision-making process behind each answer, readers can build the advanced DevOps skills expected for the AWS Professional-level certification exam.",
+    "exportIntroTranscripts": "## About this document\n\nThis document contains technical summaries of lesson transcripts related to the **AWS Certified DevOps Engineer – Professional (DOP-C02)** certification.\n\n### Purpose\nOrganizes and synthesizes lesson content in a structured format for quick review and deeper understanding of the concepts presented.",
+    "exportIntroChat": "## About this document\n\nThis document contains AI study conversations related to the **AWS Certified DevOps Engineer – Professional (DOP-C02)** certification.\n\n### Purpose\nRecords discussions and explanations generated during interactive AI study sessions, serving as complementary reference material.",
+    "domains": [
+      {
+        "name": "SDLC Automation",
+        "order": 1,
+        "description": "Domain 1 (22%): Implement CI/CD pipelines (CodePipeline, CodeBuild, CodeDeploy), integrate automated testing, manage code artifacts and container images."
+      },
+      {
+        "name": "Configuration Management and IaC",
+        "order": 2,
+        "description": "Domain 2 (17%): Define cloud infrastructure using CloudFormation/CDK, deploy and manage multi-environment configurations, implement compliance and drift detection."
+      },
+      {
+        "name": "Resilient Cloud Solutions",
+        "order": 3,
+        "description": "Domain 3 (15%): Implement highly available architectures, implement fault-tolerant systems, implement recovery procedures."
+      },
+      {
+        "name": "Monitoring and Logging",
+        "order": 4,
+        "description": "Domain 4 (15%): Configure monitoring and alerting (CloudWatch, EventBridge), analyze and visualize logs, implement automated remediation."
+      },
+      {
+        "name": "Incident and Event Response",
+        "order": 5,
+        "description": "Domain 5 (14%): Manage event sources, implement incident response workflows, implement escalation and notification mechanisms."
+      },
+      {
+        "name": "Security and Compliance",
+        "order": 6,
+        "description": "Domain 6 (17%): Implement IAM policies and permissions, implement security controls (GuardDuty, Security Hub, Inspector), automate compliance validation."
+      }
+    ]
+  },
+  {
+    "id": "preset-aws-saa-c03",
+    "name": "AWS Certified Solutions Architect – Associate (SAA-C03)",
+    "code": "SAA-C03",
+    "version": "",
+    "color": "#f59e0b",
+    "icon": "Cloud",
+    "examDurationMinutes": 130,
+    "accommodationMinutes": 30,
+    "questionCount": 65,
+    "passingScore": "720/1000",
+    "description": "Validates ability to design resilient, high-performing, secure, and cost-optimized architectures on AWS. 65 questions, 130 minutes.",
+    "domains": [
+      {
+        "name": "Design Secure Architectures",
+        "order": 1,
+        "description": "Domain 1 (30%): Design secure access to AWS resources, secure workloads and applications, determine appropriate data security controls."
+      },
+      {
+        "name": "Design Resilient Architectures",
+        "order": 2,
+        "description": "Domain 2 (26%): Design scalable and loosely coupled architectures, design highly available and fault-tolerant architectures."
+      },
+      {
+        "name": "Design High-Performing Architectures",
+        "order": 3,
+        "description": "Domain 3 (24%): Determine high-performing and scalable storage/compute/database solutions, design high-performing network architectures."
+      },
+      {
+        "name": "Design Cost-Optimized Architectures",
+        "order": 4,
+        "description": "Domain 4 (20%): Design cost-effective storage, compute, and database architectures, design cost-effective data transfer solutions."
+      }
+    ]
+  },
+  {
+    "id": "preset-k8s-cka",
+    "name": "Certified Kubernetes Administrator (CKA)",
+    "code": "CKA",
+    "version": "1.30",
+    "color": "#3b82f6",
+    "icon": "Terminal",
+    "examDurationMinutes": 120,
+    "accommodationMinutes": 0,
+    "questionCount": 17,
+    "passingScore": "66%",
+    "description": "Performance-based hands-on certification demonstrating competence in Kubernetes cluster architecture, installation, configuration, and troubleshooting. 120 minutes.",
+    "domains": [
+      {
+        "name": "Cluster Architecture, Installation & Configuration",
+        "order": 1,
+        "description": "Domain 1 (25%): Manage RBAC, use Kubeadm to install a basic cluster, manage highly available Kubernetes cluster, implement etcd backup and restore."
+      },
+      {
+        "name": "Workloads & Scheduling",
+        "order": 2,
+        "description": "Domain 2 (15%): Understand deployments and how to perform rolling updates, use ConfigMaps and Secrets, manage pod resource limits and scheduling."
+      },
+      {
+        "name": "Services & Networking",
+        "order": 3,
+        "description": "Domain 3 (20%): Understand host networking configuration, know how to use Ingress controllers and Ingress resources, configure and use CoreDNS."
+      },
+      {
+        "name": "Storage",
+        "order": 4,
+        "description": "Domain 4 (10%): Understand storage classes and persistent volume claims, configure volume access modes and reclaim policies."
+      },
+      {
+        "name": "Troubleshooting",
+        "order": 5,
+        "description": "Domain 5 (30%): Troubleshoot cluster components, cluster worker nodes, networking, and application failure scenarios."
+      }
+    ]
+  },
+  {
+    "id": "preset-gcp-pca",
+    "name": "Google Cloud Professional Cloud Architect (PCA)",
+    "code": "GCP-PCA",
+    "version": "",
+    "color": "#0ea5e9",
+    "icon": "Cloud",
+    "examDurationMinutes": 120,
+    "accommodationMinutes": 30,
+    "questionCount": 50,
+    "passingScore": "Pass/Fail",
+    "description": "Validates ability to design, develop, and manage robust, secure, scalable, highly available, and dynamic solutions on Google Cloud. 120 minutes.",
+    "domains": [
+      {
+        "name": "Designing Cloud Solution Architecture",
+        "order": 1,
+        "description": "Section 1: Designing for business use cases, compute/storage/network infrastructure, and disaster recovery."
+      },
+      {
+        "name": "Managing and Provisioning Infrastructure",
+        "order": 2,
+        "description": "Section 2: Configuring networks, storage systems, and compute resources."
+      },
+      {
+        "name": "Designing for Security and Compliance",
+        "order": 3,
+        "description": "Section 3: Designing for security (IAM, encryption, network perimeters) and legal compliance."
+      },
+      {
+        "name": "Analyzing and Optimizing Technical Processes",
+        "order": 4,
+        "description": "Section 4: Managing software development lifecycle (SDLC), continuous integration and continuous delivery (CI/CD)."
+      },
+      {
+        "name": "Ensuring Reliability and Operations",
+        "order": 5,
+        "description": "Section 5: Monitoring, logging, incident management, and capacity planning."
+      }
+    ]
+  },
+  {
+    "id": "preset-azure-az305",
+    "name": "Microsoft Certified: Azure Solutions Architect Expert (AZ-305)",
+    "code": "AZ-305",
+    "version": "",
+    "color": "#0284c7",
+    "icon": "Layers",
+    "examDurationMinutes": 120,
+    "accommodationMinutes": 30,
+    "questionCount": 55,
+    "passingScore": "700/1000",
+    "description": "Validates subject matter expertise in designing cloud and hybrid solutions that run on Microsoft Azure. 120 minutes.",
+    "domains": [
+      {
+        "name": "Design Identity, Governance, and Monitoring Solutions",
+        "order": 1,
+        "description": "Domain 1 (25-30%): Design identity and access management, governance solutions, and monitoring solutions."
+      },
+      {
+        "name": "Design Data Storage Solutions",
+        "order": 2,
+        "description": "Domain 2 (25-30%): Design data storage solutions for non-relational and relational data, and data integration."
+      },
+      {
+        "name": "Design Business Continuity Solutions",
+        "order": 3,
+        "description": "Domain 3 (10-15%): Design backup and disaster recovery solutions, and high availability solutions."
+      },
+      {
+        "name": "Design Infrastructure Solutions",
+        "order": 4,
+        "description": "Domain 4 (25-30%): Design compute solutions, application architecture, and network solutions."
+      }
+    ]
+  },
+  {
+    "id": "preset-comptia-secplus",
+    "name": "CompTIA Security+ (SY0-701)",
+    "code": "SY0-701",
+    "version": "SY0-701",
+    "color": "#10b981",
+    "icon": "Shield",
+    "examDurationMinutes": 90,
+    "accommodationMinutes": 30,
+    "questionCount": 90,
+    "passingScore": "750/900",
+    "description": "Validates foundational cybersecurity skills assessing the security posture of an enterprise environment and recommending security solutions. 90 minutes.",
+    "domains": [
+      {
+        "name": "General Security Concepts",
+        "order": 1,
+        "description": "Domain 1 (12%): Compare security controls, apply authentication/authorization, understand PKI and cryptography."
+      },
+      {
+        "name": "Threats, Vulnerabilities, and Mitigations",
+        "order": 2,
+        "description": "Domain 2 (22%): Threat actors, attack vectors, vulnerabilities, and mitigation techniques."
+      },
+      {
+        "name": "Security Architecture",
+        "order": 3,
+        "description": "Domain 3 (18%): Security models, cloud infrastructure security, resilience and recovery."
+      },
+      {
+        "name": "Security Operations",
+        "order": 4,
+        "description": "Domain 4 (28%): Applying security baselines, monitoring, vulnerability scanning, and incident response."
+      },
+      {
+        "name": "Security Program Management and Oversight",
+        "order": 5,
+        "description": "Domain 5 (20%): Governance, compliance, risk management, and security awareness."
+      }
+    ]
+  },
+  {
+    "id": "preset-hashicorp-terraform",
+    "name": "HashiCorp Certified: Terraform Associate (003)",
+    "code": "Terraform-003",
+    "version": "003",
+    "color": "#8b5cf6",
+    "icon": "Zap",
+    "examDurationMinutes": 60,
+    "accommodationMinutes": 30,
+    "questionCount": 57,
+    "passingScore": "70%",
+    "description": "Validates basic concepts, skills, and use cases associated with open source HashiCorp Terraform. 60 minutes.",
+    "domains": [
+      {
+        "name": "Understand IaC Concepts",
+        "order": 1,
+        "description": "Domain 1: Explain what IaC is and describe advantages of IaC patterns."
+      },
+      {
+        "name": "Understand Terraform Basics",
+        "order": 2,
+        "description": "Domain 2: Install and maintain Terraform CLI, understand plugin-based architecture and provider management."
+      },
+      {
+        "name": "Use Terraform CLI & Workflow",
+        "order": 3,
+        "description": "Domain 3: Core workflow (init, plan, apply, destroy), manage dependencies, validate configurations."
+      },
+      {
+        "name": "Interact with Modules & State",
+        "order": 4,
+        "description": "Domain 4: Find and use modules from registry, understand state locking, backends, and secret handling."
+      },
+      {
+        "name": "Read, Generate, & Modify Configuration",
+        "order": 5,
+        "description": "Domain 5: Variables, outputs, data sources, resource types, and built-in functions."
+      }
+    ]
+  }
+]
