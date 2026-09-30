@@ -1,6 +1,7 @@
 import React from 'react';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { AppProvider, useApp } from './context/AppContext';
+import { GoogleWorkspaceProvider } from './context/GoogleWorkspaceContext';
 import Header from './components/Header';
 import CertificationsList from './components/Home/CertificationsList';
 import CertificationWorkspace from './components/Workspace/CertificationWorkspace';
@@ -22,8 +23,11 @@ export default function App() {
   return (
     <LanguageProvider>
       <AppProvider>
-        <AppContent />
+        <GoogleWorkspaceProvider>
+          <AppContent />
+        </GoogleWorkspaceProvider>
       </AppProvider>
     </LanguageProvider>
   );
 }
+

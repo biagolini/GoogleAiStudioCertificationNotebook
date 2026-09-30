@@ -211,9 +211,14 @@ export default function NotesList() {
                     <h3 className="font-bold text-stone-900 dark:text-white text-base group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-1">
                       {note.title || 'Untitled Note'}
                     </h3>
-                    <span className="text-[11px] text-stone-400 dark:text-stone-500 font-mono shrink-0">
-                      {formatNoteDate(note.updatedAt)}
-                    </span>
+                    <div className="flex items-center space-x-1.5 shrink-0">
+                      {note.googleDocId && (
+                        <span className="w-2 h-2 rounded-full bg-blue-500" title="Synced to Google Docs" />
+                      )}
+                      <span className="text-[11px] text-stone-400 dark:text-stone-500 font-mono">
+                        {formatNoteDate(note.updatedAt)}
+                      </span>
+                    </div>
                   </div>
 
                   <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-3 mb-4 leading-relaxed font-sans">

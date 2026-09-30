@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { useGoogleWorkspace } from '../../context/GoogleWorkspaceContext';
 import { Note } from '../../types';
 import {
   ArrowLeft,
@@ -22,6 +23,9 @@ import {
   Tag,
   Trash2,
   Save,
+  FileText,
+  ExternalLink,
+  RefreshCw,
 } from 'lucide-react';
 
 interface NoteEditorProps {
@@ -31,12 +35,15 @@ interface NoteEditorProps {
 
 export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const { updateNote, deleteNote, isSyncing, lastSyncedTimestamp } = useApp();
+  const { state: gState, syncNoteToDocs } = useGoogleWorkspace();
   const { t } = useTranslation();
 
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [tagsInput, setTagsInput] = useState(note.tags.join(', '));
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [isDocsSyncing, setIsDocsSyncing] = useState(false);
+  const [docsSyncSuccess, setDocsSyncSuccess] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -57,6 +64,22 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
 
     return () => clearTimeout(handler);
   }, [title, content, tagsInput, note.id, updateNote]);
+
+  const handleSyncToDocs = async () => {
+    setIsDocsSyncing(true);
+    setDocsSyncSuccess(false);
+    const res = await syncNoteToDocs({
+      ...note,
+      title: title || 'Untitled Note',
+      content,
+      tags: tagsInput.split(',').map((t) => t.trim()).filter(Boolean),
+    });
+    setIsDocsSyncing(false);
+    if (res) {
+      setDocsSyncSuccess(true);
+      setTimeout(() => setDocsSyncSuccess(false), 3500);
+    }
+  };
 
   const calculateStats = (text: string) => {
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -193,12 +216,38 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
           </div>
         </div>
 
-        {/* Right side: Drive Sync indicator, Preview toggle, Delete */}
+        {/* Right side: Drive & Docs Sync, Preview toggle, Delete */}
         <div className="flex items-center space-x-2">
-          <span className="hidden sm:flex items-center space-x-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 rounded-lg border border-emerald-200/60 dark:border-emerald-800/60">
-            <Cloud className="w-3.5 h-3.5" />
-            <span>{isSyncing ? 'Syncing...' : 'Saved to Drive'}</span>
-          </span>
+          {note.googleDocUrl ? (
+            <a
+              id="note-open-docs-link"
+              href={note.googleDocUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2.5 py-1.5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-xs font-bold flex items-center space-x-1.5 transition-colors shadow-2xs"
+              title="Open Google Doc in new tab"
+            >
+              <FileText className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Google Docs</span>
+              <ExternalLink className="w-3 h-3 opacity-70" />
+            </a>
+          ) : null}
+
+          <button
+            id="note-sync-docs-btn"
+            type="button"
+            onClick={handleSyncToDocs}
+            disabled={isDocsSyncing}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all shadow-2xs ${
+              docsSyncSuccess
+                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300'
+                : 'border-stone-200 dark:border-stone-800 hover:border-amber-500/80 bg-stone-100/80 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400'
+            }`}
+            title={note.googleDocId ? 'Update document in Google Docs' : 'Create Google Doc from this note in /CertStudy folder'}
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isDocsSyncing ? 'animate-spin text-amber-500' : ''}`} />
+            <span>{isDocsSyncing ? 'Syncing...' : docsSyncSuccess ? 'Synced to Docs!' : note.googleDocId ? 'Sync Docs' : 'Save to Docs'}</span>
+          </button>
 
           <button
             id="note-preview-toggle-btn"

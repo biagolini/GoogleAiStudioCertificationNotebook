@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../i18n/LanguageContext';
+import { useGoogleWorkspace } from '../context/GoogleWorkspaceContext';
 import {
   GraduationCap,
   Cloud,
@@ -16,6 +17,7 @@ import SettingsModal from './SettingsModal';
 
 export default function Header() {
   const { activeCert, setActiveCertId, isSyncing, lastSyncedTimestamp, settings, toggleTheme } = useApp();
+  const { state: gState, connectGoogle } = useGoogleWorkspace();
   const { t, language, setLanguage, supportedLanguages } = useTranslation();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
@@ -66,19 +68,33 @@ export default function Header() {
           {/* Right: Drive Sync Status, Language, Theme, Settings */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Google Drive Status Indicator */}
-            <div
-              className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 text-stone-600 dark:text-stone-400 text-xs font-medium"
-              title={isSyncing ? t('app.driveSyncing') : `${t('app.driveSync')} (/CertStudy/${activeCert?.code || 'Main'})`}
-            >
-              {isSyncing ? (
-                <CloudUpload className="w-3.5 h-3.5 text-amber-500 animate-bounce" />
-              ) : (
-                <Cloud className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-              )}
-              <span className="truncate">
-                {isSyncing ? t('app.driveSyncing') : t('app.driveSync')}
-              </span>
-            </div>
+            {gState.isConnected ? (
+              <button
+                id="header-drive-status-btn"
+                onClick={() => setIsSettingsOpen(true)}
+                className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-xs font-medium hover:opacity-90 transition-opacity"
+                title={`Google Drive Synced (/CertStudy) · ${gState.userEmail || 'Connected'}`}
+              >
+                {gState.isSyncing || isSyncing ? (
+                  <CloudUpload className="w-3.5 h-3.5 text-amber-500 animate-bounce" />
+                ) : (
+                  <Cloud className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                )}
+                <span className="truncate">
+                  {gState.isSyncing || isSyncing ? t('app.driveSyncing') : 'Drive Synced'}
+                </span>
+              </button>
+            ) : (
+              <button
+                id="header-connect-drive-btn"
+                onClick={connectGoogle}
+                className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 text-stone-600 dark:text-stone-400 text-xs font-medium hover:text-stone-900 dark:hover:text-white hover:border-amber-500/50 transition-colors"
+                title="Connect Google Drive for cross-device sync and Google Docs notes"
+              >
+                <Cloud className="w-3.5 h-3.5 text-stone-400" />
+                <span>{t('app.connectGoogle')}</span>
+              </button>
+            )}
 
             {/* Language Selector Dropdown */}
             <div className="relative">

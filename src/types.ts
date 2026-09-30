@@ -34,6 +34,9 @@ export interface Note {
   tags: string[];
   createdAt: number;
   updatedAt: number;
+  googleDocId?: string;
+  googleDocUrl?: string;
+  lastSyncedToDocsAt?: number;
 }
 
 export interface QuestionOption {
