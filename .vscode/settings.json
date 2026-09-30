@@ -1,0 +1,48 @@
+{
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "Write a single concise commit subject line in imperative mood, max 72 characters. Always start with a Conventional Commits type prefix followed by a colon and a space. Allowed types: feat, fix, docs, style, refactor, chore, test, build, ci, revert. Add a scope in parentheses identifying the affected area of this client-side React/TypeScript app, for example a feature component directory (home, workspace, mock-exams, notes, question-banks, settings, header), a cross-cutting area (context, i18n, services, types, data), the build/tooling (vite, tailwind, deploy), docs, or config (kiro). When a change spans more than one area, join the scopes with a plus sign, e.g. fix(notes+services):. Do not add a body, bullet points, or explanatory paragraphs. Do not add a Co-Authored-By footer or any trailer. Summarize only the essence of the change. Only add a short body if the change is genuinely complex and cannot be conveyed in the subject alone."
+    }
+  ],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.importModuleSpecifier": "shortest",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+  "tailwindCSS.experimental.configFile": "src/index.css",
+  "css.lint.unknownAtRules": "ignore",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/bun.lock": true
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}
