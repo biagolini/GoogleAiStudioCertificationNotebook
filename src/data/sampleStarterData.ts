@@ -1,5 +1,4 @@
 import { Certification, Note, QuestionBank, Question } from '../types';
-import { generateStephaneMaarekMockSet } from './mockQuestionBankGenerator';
 
 export const SAMPLE_CERTIFICATIONS: Certification[] = [
   {
@@ -57,21 +56,26 @@ export const SAMPLE_CERTIFICATIONS: Certification[] = [
   },
 ];
 
-const stephaneMock = generateStephaneMaarekMockSet('cert-aws-saa', SAMPLE_CERTIFICATIONS[0].domains);
-
 export const SAMPLE_QUESTION_BANKS: QuestionBank[] = [
-  // --- AWS SAA-C03 Banks: 4 Simulados de 75 questões do Stephane Maarek ---
-  ...stephaneMock.banks,
-
-  // Outros professores para demonstrar agrupamento e filtros
+  // --- AWS SAA-C03 Banks ---
+  {
+    id: 'bank-aws-practice-1',
+    certId: 'cert-aws-saa',
+    name: 'Simulado 1 · Prática Geral (Exame Completo)',
+    authorOrVendor: 'Simulado Oficial',
+    description: 'Simulado prático equilibrado cobrindo os 4 domínios oficiais da prova AWS Certified Solutions Architect Associate (SAA-C03).',
+    domainTags: SAMPLE_CERTIFICATIONS[0].domains?.map((d) => d.name) || [],
+    createdAt: Date.now() - 86400000 * 4,
+    updatedAt: Date.now() - 86400000 * 1,
+  },
   {
     id: 'bank-aws-td',
     certId: 'cert-aws-saa',
-    name: 'Simulado 1 · Tutorials Dojo / Jon Bonso',
-    authorOrVendor: 'Tutorials Dojo (Jon Bonso)',
-    description: 'Simulado de alta dificuldade no estilo clássico da Tutorials Dojo com cenários de pegadinhas, VPC Peering, Direct Connect e Disaster Recovery.',
+    name: 'Simulado 2 · Cenários Avançados & Resiliência',
+    authorOrVendor: 'Simulado Avançado',
+    description: 'Simulado com foco em alta disponibilidade, VPC Peering, Direct Connect, Disaster Recovery e automação.',
     domainTags: SAMPLE_CERTIFICATIONS[0].domains?.map((d) => d.name) || [],
-    createdAt: Date.now() - 86400000 * 4,
+    createdAt: Date.now() - 86400000 * 3,
     updatedAt: Date.now() - 86400000 * 1,
   },
 
@@ -111,8 +115,75 @@ export const SAMPLE_QUESTION_BANKS: QuestionBank[] = [
 ];
 
 export const SAMPLE_QUESTIONS: Question[] = [
-  // 300 questões (4 simulados x 75 questões) distribuídas pelos 4 domínios oficiais da AWS SAA-C03
-  ...stephaneMock.questions,
+  // --- AWS SAA-C03 Questions ---
+  {
+    id: 'q-aws-sample-1',
+    certId: 'cert-aws-saa',
+    bankId: 'bank-aws-practice-1',
+    type: 'scenario',
+    domainTag: 'Domain 1: Design Secure Architectures',
+    prompt: 'Uma empresa precisa armazenar credenciais de banco de dados e rotacioná-las a cada 30 dias automaticamente sem downtime para containers ECS executando em subnets privadas. Qual é a solução arquitetural recomendada?',
+    options: [
+      { id: 'opt-aws-1-1', text: 'Armazenar as credenciais no AWS Secrets Manager e configurar a rotação automática nativa via função Lambda gerenciada.', isCorrect: true },
+      { id: 'opt-aws-1-2', text: 'Salvar como SecureString no Systems Manager Parameter Store e criar uma cron na EC2.', isCorrect: false },
+      { id: 'opt-aws-1-3', text: 'Criptografar as chaves no AWS KMS e embuti-las estaticamente nas variáveis de ambiente da task.', isCorrect: false },
+      { id: 'opt-aws-1-4', text: 'Criar uma tabela criptografada no DynamoDB e consultar via aplicação.', isCorrect: false },
+    ],
+    explanation: 'O AWS Secrets Manager oferece rotação nativa gerenciada com Lambda e integração segura direta com o Amazon ECS.',
+    createdAt: Date.now() - 86400000 * 4,
+    updatedAt: Date.now() - 86400000 * 4,
+  },
+  {
+    id: 'q-aws-sample-2',
+    certId: 'cert-aws-saa',
+    bankId: 'bank-aws-practice-1',
+    type: 'multiple-choice',
+    domainTag: 'Domain 2: Design Resilient Architectures',
+    prompt: 'Um bucket S3 deve ser acessível unicamente a partir de instâncias EC2 dentro de uma VPC privada, bloqueando qualquer requisição via internet pública. Qual configuração atende a essa exigência de forma mais resiliente e econômica?',
+    options: [
+      { id: 'opt-aws-2-1', text: 'Criar um VPC Endpoint do tipo Gateway para o S3 e adicionar uma Bucket Policy com a condição aws:sourceVpce.', isCorrect: true },
+      { id: 'opt-aws-2-2', text: 'Configurar um NAT Gateway e liberar apenas o IP público no Security Group do bucket.', isCorrect: false },
+      { id: 'opt-aws-2-3', text: 'Habilitar AWS Shield Advanced na VPC e associar ao bucket.', isCorrect: false },
+      { id: 'opt-aws-2-4', text: 'Definir uma regra de Network ACL permitindo apenas a porta 443 para o CIDR do S3.', isCorrect: false },
+    ],
+    explanation: 'VPC Gateway Endpoints permitem tráfego interno direto e a condição aws:sourceVpce na Bucket Policy restringe o acesso exclusivamente ao endpoint sem custos de tráfego de NAT.',
+    createdAt: Date.now() - 86400000 * 3,
+    updatedAt: Date.now() - 86400000 * 3,
+  },
+  {
+    id: 'q-aws-sample-3',
+    certId: 'cert-aws-saa',
+    bankId: 'bank-aws-practice-1',
+    type: 'multiple-choice',
+    domainTag: 'Domain 3: Design High-Performing Architectures',
+    prompt: 'Uma aplicação web distribuída globalmente com conteúdo estático e dinâmico precisa reduzir latência para usuários em vários continentes com proteção contra ataques DDoS na camada de aplicação. Qual arquitetura atende com máxima performance?',
+    options: [
+      { id: 'opt-aws-3-1', text: 'Amazon CloudFront na frente de um Application Load Balancer com AWS WAF associado.', isCorrect: true },
+      { id: 'opt-aws-3-2', text: 'Distribuir réplicas EC2 em cada região e utilizar Route 53 com política de latência simples sem CDN.', isCorrect: false },
+      { id: 'opt-aws-3-3', text: 'Criar túneis VPN IPsec diretos entre o cliente e o cluster.', isCorrect: false },
+      { id: 'opt-aws-3-4', text: 'Configurar Elastic Load Balancing com Cross-Zone desabilitado.', isCorrect: false },
+    ],
+    explanation: 'O Amazon CloudFront distribui conteúdo globalmente com baixa latência via Edge Locations, e integrado com AWS WAF e ALB protege requisições na camada 7.',
+    createdAt: Date.now() - 86400000 * 2,
+    updatedAt: Date.now() - 86400000 * 2,
+  },
+  {
+    id: 'q-aws-sample-4',
+    certId: 'cert-aws-saa',
+    bankId: 'bank-aws-practice-1',
+    type: 'multiple-choice',
+    domainTag: 'Domain 4: Design Cost-Optimized Architectures',
+    prompt: 'Uma empresa armazena terabytes de logs de auditoria que raramente são acessados após 90 dias, mas que por compliance devem ser recuperados em menos de 5 minutos quando solicitados. Qual classe de armazenamento do S3 oferece o menor custo para esse padrão?',
+    options: [
+      { id: 'opt-aws-4-1', text: 'S3 Glacier Flexible Retrieval com opção de restauração Expedited.', isCorrect: true },
+      { id: 'opt-aws-4-2', text: 'S3 Standard com ciclo de vida desativado.', isCorrect: false },
+      { id: 'opt-aws-4-3', text: 'S3 Glacier Deep Archive com restauração padrão de 12 horas.', isCorrect: false },
+      { id: 'opt-aws-4-4', text: 'EBS Cold HDD (sc1) anexado permanentemente.', isCorrect: false },
+    ],
+    explanation: 'S3 Glacier Flexible Retrieval com Expedited retrieval permite acesso a arquivos arquivados em 1-5 minutos com custo de armazenamento substancialmente inferior ao S3 Standard.',
+    createdAt: Date.now() - 86400000 * 1,
+    updatedAt: Date.now() - 86400000 * 1,
+  },
 
   // ====================================================
   // SIMULADO 1 & 2 · KUBERNETES CKA

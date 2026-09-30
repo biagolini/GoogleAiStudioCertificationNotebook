@@ -162,16 +162,47 @@ When running the project locally:
 
 ---
 
-### Error 400: `origin_mismatch` ("The given origin is not allowed for the client ID")
-- **Cause**: The domain or port in the browser's address bar is not listed under **Authorized JavaScript origins**.
-- **Solution**:
-  1. Go to Google Cloud Console > **APIs & Services** > **Credentials**.
-  2. Click on your OAuth Client ID to edit it.
-  3. Add the exact protocol and domain you are currently browsing:
-     - Example: `https://study.yourdomain.com`
-     - Example: `https://<your-username>.github.io`
-  4. Ensure there is no trailing slash (e.g., `https://study.yourdomain.com/` is invalid; use `https://study.yourdomain.com`).
-  5. Click **Save**. (Changes in Google Cloud can take up to 5 minutes to propagate globally).
+### Error 400: `origin_mismatch` ("Access blocked: Authorization Error / The given origin is not allowed")
+
+#### Symptoms & Error Screens
+When attempting to connect Google Workspace or sign in from a custom domain or unrecognized URL, Google displays a blocked popup with:
+```text
+Access blocked: Authorization Error
+Não é possível fazer login no app porque ele não obedece à política do OAuth 2.0 do Google.
+Se você é o desenvolvedor do app, registre a origem JavaScript no Console do Google Cloud.
+Error 400: origin_mismatch
+```
+*(In English: "The given origin is not allowed for the client ID / You can't sign in to this app because it doesn't comply with Google's OAuth 2.0 policy").*
+
+#### Cause
+The modern Google Identity Services (GSI) popup communicates via `postMessage` with the parent window. For security, Google rejects any authorization attempt if the browser's exact origin protocol, domain, and port (`window.location.origin`) are not pre-registered in **Authorized JavaScript origins** for your OAuth Client ID.
+
+This most commonly happens when:
+- You deployed the application to a **custom domain** (e.g., `https://study.yourdomain.com` via a CNAME record) but only registered the default GitHub Pages URL or localhost.
+- You typed the URL with a trailing slash (`https://study.yourdomain.com/`), which Google treats as a URI path error.
+- You typed HTTP instead of HTTPS (or vice versa).
+- You registered the apex domain (`https://yourdomain.com`) but users are visiting the subdomain (`https://study.yourdomain.com`).
+
+#### Step-by-Step Resolution
+1. **Find your exact origin**:
+   - In CertStudy, click the **Settings (gear icon)** in the header.
+   - Expand **Google OAuth Client ID Configuration**.
+   - CertStudy automatically detects your current origin (e.g. `https://study.yourdomain.com`). Click **Copy Origin**.
+2. **Add the origin in Google Cloud**:
+   - Open [Google Cloud Console > Credentials](https://console.cloud.google.com/apis/credentials).
+   - Click on your **OAuth 2.0 Client ID** (e.g., *CertStudy Web Client*).
+   - Under **Authorized JavaScript origins**, click **+ Add URI**.
+   - Paste the exact origin URL (e.g. `https://study.yourdomain.com`).
+   - Also ensure you have added your development origins if needed:
+     - `http://localhost:3000`
+     - `https://<your-username>.github.io`
+3. **Verify strict formatting rules**:
+   - ❌ **Wrong**: `https://study.yourdomain.com/` (trailing slash)
+   - ❌ **Wrong**: `https://study.yourdomain.com/index.html` (path included)
+   - ❌ **Wrong**: `study.yourdomain.com` (missing protocol)
+   - ✅ **Correct**: `https://study.yourdomain.com`
+4. Click **Save** at the bottom of the page.
+5. ⏱️ **Wait 2 to 5 minutes**: Google's global OAuth edge servers take a few minutes to propagate new authorized origins. Refresh your CertStudy tab and click **Connect Google** again.
 
 ---
 

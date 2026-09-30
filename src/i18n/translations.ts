@@ -134,9 +134,6 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     'banks.questionsList': 'Questions ({n})',
     'banks.filterDomain': 'Filter by Domain',
     'banks.allDomains': 'All Domains',
-    'banks.loadMockData': '⚡ Load 4 Mock Exams (Stephane Maarek · 4 x 75 Qs)',
-    'banks.loadMockDataGeneric': '⚡ Load 4 Mock Exams (75 Qs each)',
-    'banks.mockDataLoaded': 'Loaded 4 practice exams with 75 questions each, categorized by official exam domains!',
 
     // Question Editor
     'question.createTitle': 'Create Question',
@@ -249,6 +246,10 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     'settings.defaultAccommodationDesc': 'Start new mock exams with extra time enabled by default.',
     'settings.dataSection': 'Data & Drive Storage',
     'settings.dataDesc': 'All your certifications, notes, and question banks are kept secure in local drive storage.',
+    'settings.oauthOriginNotice': 'Authorized JavaScript Origin for Google Cloud Console:',
+    'settings.oauthOriginDesc': 'To avoid Error 400 (origin_mismatch), add this exact URL under Authorized JavaScript origins in Google Cloud Console > APIs & Services > Credentials > Your Client ID (without trailing slash).',
+    'settings.copyOrigin': 'Copy Origin',
+    'settings.originCopied': 'Origin URL copied!',
     'settings.exportData': 'Export Backup (JSON)',
     'settings.importData': 'Import Backup (JSON)',
     'settings.clearData': 'Reset All App Data',
@@ -411,9 +412,6 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     'banks.questionsList': 'Questões ({n})',
     'banks.filterDomain': 'Filtrar por Domínio',
     'banks.allDomains': 'Todos os Domínios',
-    'banks.loadMockData': '⚡ Carregar 4 Simulados (Stephane Maarek · 4 x 75 Qs)',
-    'banks.loadMockDataGeneric': '⚡ Carregar 4 Simulados (75 Qs cada)',
-    'banks.mockDataLoaded': 'Carregados 4 simulados com 75 questões cada, categorizados pelos domínios oficiais da prova!',
 
     // Question Editor
     'question.createTitle': 'Criar Questão',
@@ -526,6 +524,10 @@ export const translations: Record<LanguageCode, Record<string, string>> = {
     'settings.defaultAccommodationDesc': 'Iniciar novos simulados com tempo extra selecionado.',
     'settings.dataSection': 'Dados e Armazenamento Drive',
     'settings.dataDesc': 'Todas as certificações, notas e questões são mantidas salvas com segurança no armazenamento local.',
+    'settings.oauthOriginNotice': 'Origem JavaScript Autorizada para o Google Cloud Console:',
+    'settings.oauthOriginDesc': 'Para evitar o Erro 400 (origin_mismatch), adicione esta URL exata em "Origens JavaScript autorizadas" no Google Cloud Console > APIs e Serviços > Credenciais > Seu Client ID (sem barra no final).',
+    'settings.copyOrigin': 'Copiar Origem',
+    'settings.originCopied': 'URL de origem copiada!',
     'settings.exportData': 'Exportar Backup (JSON)',
     'settings.importData': 'Importar Backup (JSON)',
     'settings.clearData': 'Redefinir Todos os Dados',

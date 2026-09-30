@@ -16,10 +16,6 @@ import {
   SAMPLE_QUESTIONS,
   SAMPLE_NOTES,
 } from '../data/sampleStarterData';
-import {
-  generateStephaneMaarekMockSet,
-  generateGenericMockSet,
-} from '../data/mockQuestionBankGenerator';
 
 interface AppContextType {
   // Navigation & Active Scope
@@ -95,7 +91,6 @@ interface AppContextType {
 
   // Data helpers
   loadSampleStarterKit: () => void;
-  loadMockBanksForActiveCert: (authorName?: string) => void;
   resetAllData: () => void;
   exportDataJSON: () => string;
   importDataJSON: (jsonStr: string) => boolean;
@@ -576,23 +571,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActiveCertId(SAMPLE_CERTIFICATIONS[0].id);
   }, [setActiveCertId]);
 
-  // Load realistic mock banks (e.g. Stephane Maarek 4 banks x 75 questions)
-  const loadMockBanksForActiveCert = useCallback((authorName?: string) => {
-    if (!activeCert) return;
-
-    const isAws = activeCert.id.includes('aws') || (activeCert.code && activeCert.code.includes('SAA'));
-    const mockData = isAws
-      ? generateStephaneMaarekMockSet(activeCert.id, activeCert.domains)
-      : generateGenericMockSet(activeCert, authorName || 'Prof. Especialista', 4, 75);
-
-    const otherBanks = questionBanks.filter((b) => b.certId !== activeCert.id);
-    const otherQuestions = questions.filter((q) => q.certId !== activeCert.id);
-
-    persistQuestionBanks([...mockData.banks, ...otherBanks]);
-    persistQuestions([...mockData.questions, ...otherQuestions]);
-    touchCertificationStudyTime(activeCert.id);
-  }, [activeCert, questionBanks, questions, touchCertificationStudyTime]);
-
   // Reset all
   const resetAllData = useCallback(() => {
     persistCertifications([]);
@@ -702,7 +680,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveExamAttempt,
         deleteExamAttempt,
         loadSampleStarterKit,
-        loadMockBanksForActiveCert,
         resetAllData,
         exportDataJSON,
         importDataJSON,

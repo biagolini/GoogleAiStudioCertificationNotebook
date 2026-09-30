@@ -26,6 +26,7 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
+  Copy,
 } from 'lucide-react';
 import { LanguageCode } from '../i18n/translations';
 
@@ -56,6 +57,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [isDriveOperating, setIsDriveOperating] = useState(false);
   const [showOAuthConfig, setShowOAuthConfig] = useState(() => !googleWorkspaceService.getEffectiveClientId());
   const [customClientIdInput, setCustomClientIdInput] = useState(() => googleWorkspaceService.getEffectiveClientId());
+  const [originCopied, setOriginCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-expand if error occurs or client ID is empty
@@ -407,6 +409,36 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       >
                         Save Client ID
                       </button>
+                    </div>
+
+                    {/* Origin mismatch helper callout */}
+                    <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 space-y-1.5 text-stone-700 dark:text-stone-300">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300 flex items-center space-x-1">
+                          <AlertTriangle className="w-3 h-3 shrink-0" />
+                          <span>{t('settings.oauthOriginNotice')}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (typeof window !== 'undefined') {
+                              navigator.clipboard.writeText(window.location.origin);
+                              setOriginCopied(true);
+                              setTimeout(() => setOriginCopied(false), 3000);
+                            }
+                          }}
+                          className="text-[10px] font-bold text-amber-800 dark:text-amber-200 hover:underline flex items-center space-x-1"
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>{originCopied ? t('settings.originCopied') : t('settings.copyOrigin')}</span>
+                        </button>
+                      </div>
+                      <div className="text-[11px] font-mono bg-white dark:bg-stone-800 px-2 py-1 rounded border border-amber-500/20 text-stone-900 dark:text-stone-100 select-all">
+                        {typeof window !== 'undefined' ? window.location.origin : 'https://...'}
+                      </div>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 leading-relaxed">
+                        {t('settings.oauthOriginDesc')}
+                      </p>
                     </div>
                   </div>
                 )}

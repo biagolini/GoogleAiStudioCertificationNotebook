@@ -135,9 +135,18 @@ Caso você queira utilizar suas próprias credenciais do Google Cloud para a sua
      - `https://www.googleapis.com/auth/documents`
 5. Vá em **Credenciais > Criar Credenciais > ID do cliente OAuth**:
    - Tipo de aplicativo: **Aplicativo da Web**.
-   - Em **Origens JavaScript autorizadas**, adicione:
+   - Em **Origens JavaScript autorizadas** (Authorized JavaScript origins), adicione:
      - `http://localhost:3000` (para desenvolvimento local)
-     - `https://<seu-usuario>.github.io` (para seu GitHub Pages)
+     - `http://localhost:5173` (caso use Vite em outra porta local)
+     - `https://<seu-usuario>.github.io` (para seu GitHub Pages padrão)
+     - `https://study.seudominio.com` (se você utiliza um **domínio personalizado / CNAME**, adicione a URL exata do seu domínio)
+   > ⚠️ **Atenção Crítica — Evite o `Error 400: origin_mismatch`**:
+   > Se o seu site estiver rodando em um domínio personalizado (ex: `https://study.seudominio.com`) ou subdomínio e você não cadastrar exatamente essa origem em **Origens JavaScript autorizadas**, o Google exibirá o erro:
+   > `Access blocked: Authorization Error - Não é possível fazer login no app porque ele não obedece à política do OAuth 2.0 do Google. Se você é o desenvolvedor do app, registre a origem JavaScript no Console do Google Cloud. Error 400: origin_mismatch`.
+   > **Regras de preenchimento:**
+   > - Não adicione barra no final (`/`) da URL (use `https://study.seudominio.com`, e **não** `https://study.seudominio.com/`).
+   > - Deve conter o protocolo exato (`https://`).
+   > - Alterações de origens no console do Google Cloud podem levar de 2 a 5 minutos para propagar globalmente.
 6. Copie o **ID do cliente** gerado e adicione no arquivo `.env`:
    ```env
    VITE_GOOGLE_CLIENT_ID="seu-client-id.apps.googleusercontent.com"

@@ -13,7 +13,6 @@ import {
   FileCode,
   Terminal,
   CheckCircle2,
-  Sparkles,
   UserCheck,
   Award,
   BookOpen,
@@ -31,7 +30,6 @@ export default function QuestionBankManager() {
     updateQuestionBank,
     deleteQuestionBank,
     deleteQuestion,
-    loadMockBanksForActiveCert,
   } = useApp();
   const { t } = useTranslation();
 
@@ -60,9 +58,6 @@ export default function QuestionBankManager() {
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDomainFilter, setSelectedDomainFilter] = useState<string | null>(null);
-
-  // Toast for mock data load
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   if (!activeCert) return null;
 
@@ -183,12 +178,6 @@ export default function QuestionBankManager() {
     setIsQuestionModalOpen(true);
   };
 
-  const handleLoadMockData = () => {
-    loadMockBanksForActiveCert('Stephane Maarek');
-    setToastMessage(t('banks.mockDataLoaded'));
-    setTimeout(() => setToastMessage(null), 5000);
-  };
-
   // Filter questions by search and domain
   const filteredQuestions = currentBankQuestions.filter((q) => {
     const term = searchQuery.toLowerCase();
@@ -229,22 +218,6 @@ export default function QuestionBankManager() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-in fade-in duration-150">
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700/80 rounded-2xl flex items-center justify-between text-xs text-emerald-900 dark:text-emerald-100 shadow-sm animate-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center space-x-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span className="font-semibold">{toastMessage}</span>
-          </div>
-          <button
-            onClick={() => setToastMessage(null)}
-            className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 rounded-lg text-emerald-700 dark:text-emerald-300"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -262,21 +235,6 @@ export default function QuestionBankManager() {
         </div>
 
         <div className="flex items-center flex-wrap gap-2">
-          {/* Quick Mock Data Loader Button */}
-          <button
-            id="banks-load-mock-btn"
-            onClick={handleLoadMockData}
-            className="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-amber-500/10 to-orange-500/15 hover:from-amber-500/20 hover:to-orange-500/25 text-amber-800 dark:text-amber-300 font-bold text-xs rounded-xl border border-amber-300/80 dark:border-amber-700/60 shadow-xs transition-all active:scale-95"
-            title="Carregar 4 Simulados de 75 questões do Prof. Stephane Maarek vinculadas aos domínios da prova"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>
-              {activeCert.id.includes('aws') || (activeCert.code && activeCert.code.includes('SAA'))
-                ? t('banks.loadMockData')
-                : t('banks.loadMockDataGeneric')}
-            </span>
-          </button>
-
           <button
             id="banks-create-bank-btn"
             onClick={openCreateBankModal}
@@ -314,17 +272,9 @@ export default function QuestionBankManager() {
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
             <button
-              id="banks-empty-mock-btn"
-              onClick={handleLoadMockData}
-              className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center space-x-1.5"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>{t('banks.loadMockData')}</span>
-            </button>
-            <button
               id="banks-empty-add-btn"
               onClick={openCreateBankModal}
-              className="px-4 py-2.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5"
+              className="px-4 py-2.5 bg-stone-900 dark:bg-white hover:bg-stone-800 dark:hover:bg-stone-100 text-white dark:text-stone-900 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center space-x-1.5"
             >
               <Plus className="w-4 h-4" />
               <span>{t('banks.addBank')}</span>
@@ -631,17 +581,9 @@ export default function QuestionBankManager() {
                     <div className="flex items-center justify-center space-x-2">
                       <button
                         onClick={openCreateQuestionModal}
-                        className="text-xs text-amber-600 dark:text-amber-400 font-bold hover:underline"
+                        className="px-3.5 py-1.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 text-xs font-bold rounded-xl hover:opacity-90 transition-opacity"
                       >
-                        + Adicionar primeira questão
-                      </button>
-                      <span className="text-stone-300">•</span>
-                      <button
-                        onClick={handleLoadMockData}
-                        className="text-xs text-amber-600 dark:text-amber-400 font-bold hover:underline flex items-center space-x-1"
-                      >
-                        <Sparkles className="w-3 h-3 inline" />
-                        <span>Carregar 75 questões mockadas</span>
+                        + {t('banks.addQuestion')}
                       </button>
                     </div>
                   </div>
