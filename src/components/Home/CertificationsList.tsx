@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { Certification, CertificationDomain } from '../../types';
@@ -6,6 +6,10 @@ import {
   CERTIFICATION_PRESETS,
   CertificationPreset,
 } from '../../data/certificationPresets';
+import {
+  CERTIFICATION_CATALOG,
+  catalogCertToPreset,
+} from '../../data/certificationCatalog';
 import {
   Plus,
   Search,
@@ -31,6 +35,8 @@ import {
   ChevronDown,
   Check,
   Flame,
+  User,
+  Target,
 } from 'lucide-react';
 
 const COLOR_OPTIONS = [
@@ -62,6 +68,8 @@ export default function CertificationsList() {
     updateCertification,
     deleteCertification,
     setActiveCertId,
+    setCurrentView,
+    studentProfile,
     notes,
     questionBanks,
     questions,
@@ -69,6 +77,49 @@ export default function CertificationsList() {
     loadSampleStarterKit,
   } = useApp();
   const { t } = useTranslation();
+
+  // Personalized Suggestions sorted by student preferences:
+  // 1. In target track & not earned & not in workspace (+200)
+  // 2. Belongs to preferred provider & not earned & not in workspace (+100)
+  // 3. Not earned & not in workspace (+10)
+  // 4. In active workspace (-50)
+  // 5. Already earned (-100)
+  const prioritizedPresets = useMemo(() => {
+    const allCandidates = CERTIFICATION_CATALOG.map((catCert) => {
+      const preset = catalogCertToPreset(catCert);
+      const userStatus = studentProfile.certStatuses[catCert.id]?.status || 'not-started';
+      const isEarned = userStatus === 'earned';
+      const isTargetTrack = userStatus === 'target-track';
+      const isProviderInterested = (studentProfile.targetProviderInterests || []).includes(
+        catCert.provider
+      );
+      const isInWorkspace = certifications.some(
+        (c) => c.code?.toLowerCase() === catCert.code.toLowerCase() || c.name === catCert.name
+      );
+
+      let score = 10;
+      if (isEarned) {
+        score = -100;
+      } else if (isInWorkspace) {
+        score = -50;
+      } else {
+        if (isTargetTrack) score += 200;
+        if (isProviderInterested) score += 100;
+      }
+
+      return {
+        preset,
+        catCert,
+        score,
+        isEarned,
+        isTargetTrack,
+        isProviderInterested,
+        isInWorkspace,
+      };
+    });
+
+    return allCandidates.sort((a, b) => b.score - a.score);
+  }, [studentProfile, certifications]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -355,18 +406,28 @@ export default function CertificationsList() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => openCreateModal()}
-            className="text-xs text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 font-semibold flex items-center space-x-1 self-start md:self-auto transition-colors"
-          >
-            <span>{t('home.browsePresets')}</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center space-x-2.5 self-start md:self-auto">
+            <button
+              onClick={() => setCurrentView('profile')}
+              className="text-xs text-amber-800 dark:text-amber-300 hover:opacity-85 font-bold flex items-center space-x-1.5 transition-colors bg-amber-500/15 dark:bg-amber-500/20 px-2.5 py-1 rounded-xl border border-amber-500/30"
+              title="Personalizar minhas metas no perfil do aluno"
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Personalizar Trilha</span>
+            </button>
+            <button
+              onClick={() => openCreateModal()}
+              className="text-xs text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white font-semibold flex items-center space-x-1 transition-colors"
+            >
+              <span>{t('home.browsePresets')}</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Preset Cards Scroll / Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {CERTIFICATION_PRESETS.slice(0, 4).map((preset) => {
+          {prioritizedPresets.slice(0, 4).map(({ preset, isEarned, isTargetTrack, isProviderInterested }) => {
             const isAlreadyAdded = certifications.some(
               (c) => c.code === preset.code || c.name === preset.name
             );
@@ -377,14 +438,32 @@ export default function CertificationsList() {
                 className="bg-white/90 hover:bg-white dark:bg-stone-800/80 dark:hover:bg-stone-800 border border-stone-200/90 dark:border-stone-700/80 hover:border-amber-400/60 dark:hover:border-amber-400/50 rounded-xl p-3.5 flex flex-col justify-between transition-all group shadow-2xs"
               >
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider text-stone-900 shadow-2xs"
-                      style={{ backgroundColor: preset.color }}
-                    >
-                      {preset.code}
-                    </span>
-                    <span className="text-[11px] text-stone-500 dark:text-stone-400 flex items-center space-x-1">
+                  <div className="flex items-center justify-between gap-1 flex-wrap">
+                    <div className="flex items-center space-x-1.5">
+                      <span
+                        className="px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider text-stone-900 shadow-2xs"
+                        style={{ backgroundColor: preset.color }}
+                      >
+                        {preset.code}
+                      </span>
+                      {isTargetTrack && (
+                        <span className="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-500 text-stone-950 shadow-2xs">
+                          🎯 {t('profile.badgeInTrack')}
+                        </span>
+                      )}
+                      {!isTargetTrack && isProviderInterested && (
+                        <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400">
+                          ★ {t('profile.badgeTargetProvider')}
+                        </span>
+                      )}
+                      {isEarned && (
+                        <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+                          🏆 {t('profile.badgeEarned')}
+                        </span>
+                      )}
+                    </div>
+
+                    <span className="text-[11px] text-stone-500 dark:text-stone-400 flex items-center space-x-1 shrink-0">
                       <Clock className="w-3 h-3 text-stone-400" />
                       <span>{preset.examDurationMinutes}m</span>
                     </span>

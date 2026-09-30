@@ -2,6 +2,47 @@ export type QuestionType = 'multiple-choice' | 'scenario' | 'flashcard';
 
 export type ExamFeedbackMode = 'instant-feedback' | 'final-review';
 
+export type CertificationStatus = 'not-started' | 'target-track' | 'earned';
+
+export type ProviderCategory = 'aws' | 'azure' | 'gcp' | 'kubernetes' | 'terraform' | 'linux' | 'mongodb';
+
+export interface CatalogCertification {
+  id: string;
+  name: string;
+  code: string;
+  provider: ProviderCategory;
+  level: 'foundational' | 'associate' | 'professional' | 'specialty';
+  icon: string;
+  color: string;
+  description: string;
+  examDurationMinutes: number;
+  accommodationMinutes?: number;
+  domains: CertificationDomain[];
+  officialUrl?: string;
+}
+
+export interface StudentCertStatus {
+  status: CertificationStatus;
+  earnedDate?: string;
+  credentialUrl?: string;
+  targetDate?: string;
+  notes?: string;
+  updatedAt?: number;
+}
+
+export interface StudentProfile {
+  name: string;
+  title: string;
+  bio: string;
+  experienceLevel: 'beginner' | 'intermediate' | 'advanced' | 'lead';
+  primaryFocus: string[]; // e.g. ['cloud', 'devops', 'security', 'data', 'sysadmin']
+  targetProviderInterests: ProviderCategory[];
+  certStatuses: Record<string, StudentCertStatus>;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  updatedAt: number;
+}
+
 export interface CertificationDomain {
   name: string;
   order: number;

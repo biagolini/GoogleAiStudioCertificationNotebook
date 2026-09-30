@@ -7,6 +7,8 @@ import {
   ExamAttempt,
   UserSettings,
   MockExamConfigOptions,
+  StudentProfile,
+  CertificationStatus,
 } from '../types';
 import {
   SAMPLE_CERTIFICATIONS,
@@ -17,11 +19,22 @@ import {
 
 interface AppContextType {
   // Navigation & Active Scope
+  currentView: 'home' | 'profile';
+  setCurrentView: (view: 'home' | 'profile') => void;
   activeCertId: string | null;
   setActiveCertId: (id: string | null) => void;
   activeCert: Certification | null;
   activeTab: 'notes' | 'questionBanks' | 'mockExams';
   setActiveTab: (tab: 'notes' | 'questionBanks' | 'mockExams') => void;
+
+  // Student Profile & Career Tracker
+  studentProfile: StudentProfile;
+  updateStudentProfile: (updates: Partial<StudentProfile>) => void;
+  setCertStatus: (
+    certId: string,
+    status: CertificationStatus,
+    metadata?: { earnedDate?: string; credentialUrl?: string; targetDate?: string; notes?: string }
+  ) => void;
 
   // Active taking exam state
   activeExamAttempt: ExamAttempt | null;
@@ -91,6 +104,8 @@ const STORAGE_KEYS = {
   ATTEMPTS: 'certstudy_attempts_v1',
   SETTINGS: 'certstudy_settings_v1',
   ACTIVE_CERT: 'certstudy_active_cert_v1',
+  PROFILE: 'certstudy_student_profile_v1',
+  VIEW: 'certstudy_current_view_v1',
 };
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -98,6 +113,17 @@ const DEFAULT_SETTINGS: UserSettings = {
   language: 'en',
   defaultUseTimer: true,
   defaultUseAccommodation: false, // Per Section 5.1 & 10: accommodation defaults to OFF for new students
+};
+
+const DEFAULT_STUDENT_PROFILE: StudentProfile = {
+  name: '',
+  title: '',
+  bio: '',
+  experienceLevel: 'intermediate',
+  primaryFocus: ['cloud', 'devops'],
+  targetProviderInterests: ['aws', 'kubernetes', 'terraform'],
+  certStatuses: {},
+  updatedAt: Date.now(),
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -194,6 +220,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   });
 
   // Active navigation state
+  const [currentView, setCurrentViewState] = useState<'home' | 'profile'>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.VIEW);
+      if (saved === 'profile') return 'profile';
+    } catch (e) {}
+    return 'home';
+  });
+
+  const setCurrentView = useCallback((view: 'home' | 'profile') => {
+    setCurrentViewState(view);
+    try {
+      localStorage.setItem(STORAGE_KEYS.VIEW, view);
+    } catch (e) {}
+    if (view === 'profile') {
+      setActiveCertIdState(null);
+      try {
+        localStorage.removeItem(STORAGE_KEYS.ACTIVE_CERT);
+      } catch (e) {}
+    }
+  }, []);
+
   const [activeCertId, setActiveCertIdState] = useState<string | null>(() => {
     try {
       return localStorage.getItem(STORAGE_KEYS.ACTIVE_CERT) || null;
@@ -204,6 +251,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const setActiveCertId = useCallback((id: string | null) => {
     setActiveCertIdState(id);
+    if (id) {
+      setCurrentViewState('home');
+      try {
+        localStorage.setItem(STORAGE_KEYS.VIEW, 'home');
+      } catch (e) {}
+    }
     try {
       if (id) {
         localStorage.setItem(STORAGE_KEYS.ACTIVE_CERT, id);
@@ -212,6 +265,74 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     } catch (e) {}
   }, []);
+
+  // Student Profile state
+  const [studentProfile, setStudentProfile] = useState<StudentProfile>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.PROFILE);
+      if (saved) {
+        return { ...DEFAULT_STUDENT_PROFILE, ...JSON.parse(saved) };
+      }
+    } catch (e) {}
+    return DEFAULT_STUDENT_PROFILE;
+  });
+
+  const persistStudentProfile = useCallback(
+    (profile: StudentProfile) => {
+      setStudentProfile(profile);
+      try {
+        localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(profile));
+      } catch (e) {}
+      triggerSyncIndicator();
+    },
+    [triggerSyncIndicator]
+  );
+
+  const updateStudentProfile = useCallback(
+    (updates: Partial<StudentProfile>) => {
+      setStudentProfile((prev) => {
+        const updated: StudentProfile = { ...prev, ...updates, updatedAt: Date.now() };
+        try {
+          localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(updated));
+        } catch (e) {}
+        triggerSyncIndicator();
+        return updated;
+      });
+    },
+    [triggerSyncIndicator]
+  );
+
+  const setCertStatus = useCallback(
+    (
+      certId: string,
+      status: CertificationStatus,
+      metadata?: { earnedDate?: string; credentialUrl?: string; targetDate?: string; notes?: string }
+    ) => {
+      setStudentProfile((prev) => {
+        const current = prev.certStatuses[certId] || { status: 'not-started' };
+        const updatedStatuses = {
+          ...prev.certStatuses,
+          [certId]: {
+            ...current,
+            status,
+            ...metadata,
+            updatedAt: Date.now(),
+          },
+        };
+        const updated: StudentProfile = {
+          ...prev,
+          certStatuses: updatedStatuses,
+          updatedAt: Date.now(),
+        };
+        try {
+          localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(updated));
+        } catch (e) {}
+        triggerSyncIndicator();
+        return updated;
+      });
+    },
+    [triggerSyncIndicator]
+  );
 
   const [activeTab, setActiveTab] = useState<'notes' | 'questionBanks' | 'mockExams'>('notes');
   const [activeExamAttempt, setActiveExamAttempt] = useState<ExamAttempt | null>(null);
@@ -457,14 +578,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     persistNotes([]);
     persistExamAttempts([]);
     setActiveCertId(null);
+    setCurrentView('home');
+    persistStudentProfile(DEFAULT_STUDENT_PROFILE);
     setActiveExamAttempt(null);
     setActiveExamReviewAttempt(null);
-  }, [setActiveCertId]);
+  }, [setActiveCertId, setCurrentView, persistStudentProfile]);
 
   // JSON Export & Import
   const exportDataJSON = useCallback(() => {
     const bundle = {
-      version: '1.0',
+      version: '1.1',
       exportedAt: new Date().toISOString(),
       certifications,
       questionBanks,
@@ -472,43 +595,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       notes,
       examAttempts,
       settings,
+      studentProfile,
     };
     return JSON.stringify(bundle, null, 2);
-  }, [certifications, questionBanks, questions, notes, examAttempts, settings]);
+  }, [certifications, questionBanks, questions, notes, examAttempts, settings, studentProfile]);
 
-  const importDataJSON = useCallback((jsonStr: string): boolean => {
-    try {
-      const parsed = JSON.parse(jsonStr);
-      if (parsed.certifications && Array.isArray(parsed.certifications)) {
-        persistCertifications(parsed.certifications);
+  const importDataJSON = useCallback(
+    (jsonStr: string): boolean => {
+      try {
+        const parsed = JSON.parse(jsonStr);
+        if (parsed.certifications && Array.isArray(parsed.certifications)) {
+          persistCertifications(parsed.certifications);
+        }
+        if (parsed.questionBanks && Array.isArray(parsed.questionBanks)) {
+          persistQuestionBanks(parsed.questionBanks);
+        }
+        if (parsed.questions && Array.isArray(parsed.questions)) {
+          persistQuestions(parsed.questions);
+        }
+        if (parsed.notes && Array.isArray(parsed.notes)) {
+          persistNotes(parsed.notes);
+        }
+        if (parsed.examAttempts && Array.isArray(parsed.examAttempts)) {
+          persistExamAttempts(parsed.examAttempts);
+        }
+        if (parsed.studentProfile && typeof parsed.studentProfile === 'object') {
+          persistStudentProfile({ ...DEFAULT_STUDENT_PROFILE, ...parsed.studentProfile });
+        }
+        return true;
+      } catch (e) {
+        console.error('Failed to import backup JSON', e);
+        return false;
       }
-      if (parsed.questionBanks && Array.isArray(parsed.questionBanks)) {
-        persistQuestionBanks(parsed.questionBanks);
-      }
-      if (parsed.questions && Array.isArray(parsed.questions)) {
-        persistQuestions(parsed.questions);
-      }
-      if (parsed.notes && Array.isArray(parsed.notes)) {
-        persistNotes(parsed.notes);
-      }
-      if (parsed.examAttempts && Array.isArray(parsed.examAttempts)) {
-        persistExamAttempts(parsed.examAttempts);
-      }
-      return true;
-    } catch (e) {
-      console.error('Failed to import backup JSON', e);
-      return false;
-    }
-  }, []);
+    },
+    [persistStudentProfile]
+  );
 
   return (
     <AppContext.Provider
       value={{
+        currentView,
+        setCurrentView,
         activeCertId,
         setActiveCertId,
         activeCert,
         activeTab,
         setActiveTab,
+        studentProfile,
+        updateStudentProfile,
+        setCertStatus,
         activeExamAttempt,
         setActiveExamAttempt,
         activeExamReviewAttempt,
