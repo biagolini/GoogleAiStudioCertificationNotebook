@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../i18n/LanguageContext';
 import { useGoogleWorkspace } from '../context/GoogleWorkspaceContext';
@@ -54,9 +54,16 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [importErrorMsg, setImportErrorMsg] = useState<string | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isDriveOperating, setIsDriveOperating] = useState(false);
-  const [showOAuthConfig, setShowOAuthConfig] = useState(false);
+  const [showOAuthConfig, setShowOAuthConfig] = useState(() => !googleWorkspaceService.getEffectiveClientId());
   const [customClientIdInput, setCustomClientIdInput] = useState(() => googleWorkspaceService.getEffectiveClientId());
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-expand if error occurs or client ID is empty
+  useEffect(() => {
+    if (gState.error || !googleWorkspaceService.getEffectiveClientId()) {
+      setShowOAuthConfig(true);
+    }
+  }, [gState.error]);
 
   if (!isOpen) return null;
 

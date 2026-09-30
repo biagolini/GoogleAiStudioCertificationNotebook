@@ -62,6 +62,7 @@ export const GoogleWorkspaceProvider: React.FC<{ children: React.ReactNode }> = 
         isSyncing: false,
         error: err?.message || 'Failed to connect Google Workspace',
       }));
+      throw err;
     }
   }, []);
 

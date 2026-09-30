@@ -175,6 +175,18 @@ When running the project locally:
 
 ---
 
+### Warning Screen: "Google hasn’t verified this app"
+- **Cause**: CertStudy uses `https://www.googleapis.com/auth/documents` (Google Docs API) to export notes, which Google classifies as a **Sensitive Scope**. Any app using sensitive scopes shows this warning until verified by Google Trust & Safety.
+- **Immediate Solution (Zero Waiting)**:
+  1. Click **Advanced** (or **Avançado**) on the warning screen.
+  2. Click **Go to study.yourdomain.com (unsafe)** (or **Acessar study.yourdomain.com (não seguro)**).
+  3. Accept the requested permissions to connect immediately.
+- **Permanent Solution (Official Verification & Demo Video)**:
+  - If you wish to permanently remove this warning for all public users, follow our dedicated step-by-step verification guide:  
+    👉 **[`docs/google-oauth-app-verification-and-demo-video.md`](google-oauth-app-verification-and-demo-video.md)**
+
+---
+
 ### Error 403: `access_denied` ("This app hasn't been verified")
 - **Cause**: The app is still in **Testing** publishing status and the current Google Account is not on the test user whitelist.
 - **Solution**:

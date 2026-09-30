@@ -340,24 +340,24 @@ export default function CertificationsList() {
       </div>
 
       {/* Suggested Quick Presets Ribbon */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-white rounded-2xl p-4 sm:p-5 shadow-sm border border-stone-800">
+      <div className="bg-gradient-to-br from-amber-50/70 via-stone-50 to-orange-50/40 dark:from-stone-900 dark:via-stone-900/90 dark:to-stone-900 text-stone-900 dark:text-white rounded-2xl p-4 sm:p-5 shadow-xs border border-amber-200/70 dark:border-stone-800 transition-colors">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
           <div className="flex items-center space-x-2">
-            <span className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400">
+            <span className="p-1.5 rounded-lg bg-amber-500/15 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
               <Sparkles className="w-4 h-4" />
             </span>
             <div>
-              <h2 className="text-sm font-bold text-white tracking-tight">
+              <h2 className="text-sm font-bold text-stone-900 dark:text-white tracking-tight">
                 {t('home.suggestionsTitle')}
               </h2>
-              <p className="text-xs text-stone-300">
+              <p className="text-xs text-stone-600 dark:text-stone-300">
                 {t('home.suggestionsSubtitle')}
               </p>
             </div>
           </div>
           <button
             onClick={() => openCreateModal()}
-            className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center space-x-1 self-start md:self-auto"
+            className="text-xs text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 font-semibold flex items-center space-x-1 self-start md:self-auto transition-colors"
           >
             <span>{t('home.browsePresets')}</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -374,40 +374,40 @@ export default function CertificationsList() {
             return (
               <div
                 key={preset.id}
-                className="bg-stone-800/80 hover:bg-stone-800 border border-stone-700/80 rounded-xl p-3.5 flex flex-col justify-between transition-all group"
+                className="bg-white/90 hover:bg-white dark:bg-stone-800/80 dark:hover:bg-stone-800 border border-stone-200/90 dark:border-stone-700/80 hover:border-amber-400/60 dark:hover:border-amber-400/50 rounded-xl p-3.5 flex flex-col justify-between transition-all group shadow-2xs"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span
-                      className="px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider text-stone-900"
+                      className="px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider text-stone-900 shadow-2xs"
                       style={{ backgroundColor: preset.color }}
                     >
                       {preset.code}
                     </span>
-                    <span className="text-[11px] text-stone-400 flex items-center space-x-1">
+                    <span className="text-[11px] text-stone-500 dark:text-stone-400 flex items-center space-x-1">
                       <Clock className="w-3 h-3 text-stone-400" />
                       <span>{preset.examDurationMinutes}m</span>
                     </span>
                   </div>
 
-                  <h3 className="text-xs font-bold text-white line-clamp-2 leading-snug">
+                  <h3 className="text-xs font-bold text-stone-900 dark:text-white line-clamp-2 leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                     {preset.name}
                   </h3>
 
-                  <p className="text-[11px] text-stone-400 line-clamp-2 leading-tight">
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 line-clamp-2 leading-tight">
                     {preset.description}
                   </p>
                 </div>
 
-                <div className="pt-3 mt-2 border-t border-stone-700/50 flex items-center justify-between gap-2">
-                  <span className="text-[10px] text-stone-400 font-medium">
+                <div className="pt-3 mt-2 border-t border-stone-100 dark:border-stone-700/50 flex items-center justify-between gap-2">
+                  <span className="text-[10px] text-stone-400 dark:text-stone-400 font-medium">
                     {preset.domains.length} domains
                   </span>
 
                   <div className="flex items-center space-x-1.5">
                     <button
                       onClick={() => openCreateModal(preset)}
-                      className="px-2.5 py-1 text-[11px] font-semibold bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-lg transition-colors"
+                      className="px-2.5 py-1 text-[11px] font-semibold bg-stone-100 hover:bg-stone-200 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-200 border border-stone-200/70 dark:border-transparent rounded-lg transition-colors"
                       title="Pre-fill registration form"
                     >
                       {t('home.prefillForm')}
@@ -415,7 +415,7 @@ export default function CertificationsList() {
                     {!isAlreadyAdded && (
                       <button
                         onClick={() => handleQuickAdd(preset)}
-                        className="px-2.5 py-1 text-[11px] font-bold bg-amber-500 hover:bg-amber-400 text-stone-900 rounded-lg transition-colors flex items-center space-x-1"
+                        className="px-2.5 py-1 text-[11px] font-bold bg-amber-500 hover:bg-amber-400 text-stone-950 rounded-lg transition-colors flex items-center space-x-1 shadow-2xs"
                         title="1-Click quick register"
                       >
                         <Plus className="w-3 h-3" />

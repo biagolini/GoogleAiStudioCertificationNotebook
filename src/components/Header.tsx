@@ -87,7 +87,13 @@ export default function Header() {
             ) : (
               <button
                 id="header-connect-drive-btn"
-                onClick={connectGoogle}
+                onClick={async () => {
+                  try {
+                    await connectGoogle();
+                  } catch {
+                    setIsSettingsOpen(true);
+                  }
+                }}
                 className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-stone-100 dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 text-stone-600 dark:text-stone-400 text-xs font-medium hover:text-stone-900 dark:hover:text-white hover:border-amber-500/50 transition-colors"
                 title="Connect Google Drive for cross-device sync and Google Docs notes"
               >

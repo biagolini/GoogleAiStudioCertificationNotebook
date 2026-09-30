@@ -144,9 +144,10 @@ Caso você queira utilizar suas próprias credenciais do Google Cloud para a sua
    ```
    *(Caso faça deploy no GitHub Pages via GitHub Actions, você pode adicionar esse valor em **Settings > Secrets and variables > Actions > New repository secret** com o nome `VITE_GOOGLE_CLIENT_ID`)*.
 
-📖 **Guia Completo e Passo a Passo (Anônimo):**  
-Para um guia completo passo a passo com resolução de erros comuns (`Error 401: invalid_client`, `origin_mismatch`, etc.), consulte:  
-👉 **[`docs/google-cloud-oauth-setup.md`](docs/google-cloud-oauth-setup.md)**
+📖 **Guias Passo a Passo (Anônimos):**  
+- 👉 **[`docs/google-cloud-oauth-setup.md`](docs/google-cloud-oauth-setup.md)**: Configuração inicial do OAuth 2.0 no GCP, origens JavaScript e variáveis de ambiente.
+- 👉 **[`docs/google-oauth-app-verification-and-demo-video.md`](docs/google-oauth-app-verification-and-demo-video.md)**: Como contornar o aviso *"Google hasn't verified this app"*, gravar o vídeo de demonstração exigido e aprovar o app no Google.
+- 👉 **[`docs/oauth-homepage-domain-verification.md`](docs/oauth-homepage-domain-verification.md)**: Verificação de propriedade de domínio via Google Search Console e registro DNS TXT.
 
 ---
 

@@ -51,8 +51,12 @@ class GoogleWorkspaceService {
   private clientId: string = '';
 
   constructor() {
-    // Look up client ID from env if provided
-    this.clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || '';
+    // Look up client ID from env if provided at build time
+    try {
+      this.clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+    } catch {
+      this.clientId = '';
+    }
   }
 
   public getCustomClientId(): string {
@@ -75,7 +79,10 @@ class GoogleWorkspaceService {
 
   public getEffectiveClientId(): string {
     const fromCustom = this.getCustomClientId();
-    const fromEnv = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID;
+    let fromEnv = '';
+    try {
+      fromEnv = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+    } catch {}
     return (fromCustom || fromEnv || this.clientId || '').trim();
   }
 
@@ -84,21 +91,36 @@ class GoogleWorkspaceService {
    */
   public async loadGsiScript(): Promise<void> {
     if (window.google?.accounts?.oauth2) {
-      return;
+      return Promise.resolve();
     }
     return new Promise((resolve, reject) => {
+      // Poll if script is already present in DOM
+      let attempts = 0;
+      const checkInterval = setInterval(() => {
+        attempts++;
+        if (window.google?.accounts?.oauth2) {
+          clearInterval(checkInterval);
+          resolve();
+        } else if (attempts > 50) {
+          clearInterval(checkInterval);
+          reject(new Error('Timed out waiting for Google Identity Services SDK to load.'));
+        }
+      }, 60);
+
       const existing = document.getElementById('google-gsi-client');
       if (existing) {
-        existing.addEventListener('load', () => resolve());
         return;
       }
+
       const script = document.createElement('script');
       script.id = 'google-gsi-client';
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.defer = true;
-      script.onload = () => resolve();
-      script.onerror = (err) => reject(new Error('Failed to load Google Identity Services SDK: ' + err));
+      script.onerror = (err) => {
+        clearInterval(checkInterval);
+        reject(new Error('Failed to load Google Identity Services SDK: ' + err));
+      };
       document.head.appendChild(script);
     });
   }
