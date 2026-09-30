@@ -34,7 +34,9 @@ export default function QuestionFormModal({
 
   const [type, setType] = useState<QuestionType>(questionToEdit?.type || 'multiple-choice');
   const [prompt, setPrompt] = useState(questionToEdit?.prompt || '');
-  const [domainTag, setDomainTag] = useState(questionToEdit?.domainTag || bank.domainTags[0] || '');
+  const [domainTag, setDomainTag] = useState(
+    questionToEdit?.domainTag || activeCert?.domains?.[0]?.name || bank.domainTags[0] || ''
+  );
   const [explanation, setExplanation] = useState(questionToEdit?.explanation || '');
 
   // Multiple Choice / Scenario choices options
@@ -224,15 +226,58 @@ export default function QuestionFormModal({
             <label className="block font-bold text-stone-700 dark:text-stone-300 mb-1">
               {t('question.domainLabel')} *
             </label>
-            <input
-              id="question-domain-input"
-              type="text"
-              required
-              value={domainTag}
-              onChange={(e) => setDomainTag(e.target.value)}
-              placeholder={t('question.domainPlaceholder')}
-              className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-stone-900 dark:text-white"
-            />
+            {activeCert.domains && activeCert.domains.length > 0 ? (
+              <div className="space-y-1.5">
+                <select
+                  id="question-domain-select"
+                  value={
+                    activeCert.domains.some((d) => d.name === domainTag)
+                      ? domainTag
+                      : domainTag === ''
+                      ? ''
+                      : '__custom__'
+                  }
+                  onChange={(e) => {
+                    if (e.target.value === '__custom__') {
+                      setDomainTag('');
+                    } else {
+                      setDomainTag(e.target.value);
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-stone-900 dark:text-white font-medium"
+                >
+                  <option value="">Selecione um Domínio Oficial da Prova...</option>
+                  {activeCert.domains.map((d) => (
+                    <option key={d.name} value={d.name}>
+                      {d.name}
+                    </option>
+                  ))}
+                  <option value="__custom__">Outro / Domínio personalizado...</option>
+                </select>
+
+                {(!activeCert.domains.some((d) => d.name === domainTag) || domainTag === '') && (
+                  <input
+                    id="question-domain-input"
+                    type="text"
+                    required
+                    value={domainTag}
+                    onChange={(e) => setDomainTag(e.target.value)}
+                    placeholder="Digite o nome do domínio ou tópico..."
+                    className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-stone-900 dark:text-white"
+                  />
+                )}
+              </div>
+            ) : (
+              <input
+                id="question-domain-input"
+                type="text"
+                required
+                value={domainTag}
+                onChange={(e) => setDomainTag(e.target.value)}
+                placeholder={t('question.domainPlaceholder')}
+                className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-stone-900 dark:text-white"
+              />
+            )}
           </div>
 
           {/* Multiple Choice & Scenario Common Prompt */}

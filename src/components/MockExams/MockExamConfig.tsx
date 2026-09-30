@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useTranslation } from '../../i18n/LanguageContext';
 import {
   ExamFeedbackMode,
   MockExamConfigOptions,
   ExamAttempt,
+  QuestionBank,
 } from '../../types';
 import {
   PlayCircle,
@@ -44,6 +45,7 @@ export default function MockExamConfig({ onStartExam, onReviewAttempt }: MockExa
 
   // Configuration state
   const [selectedBankIds, setSelectedBankIds] = useState<string[]>([]);
+  const [selectedDomainFilter, setSelectedDomainFilter] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState<number>(10);
   const [examDurationMinutes, setExamDurationMinutes] = useState<number>(
     activeCert?.examDurationMinutes || 120
@@ -54,6 +56,17 @@ export default function MockExamConfig({ onStartExam, onReviewAttempt }: MockExa
     settings.defaultUseAccommodation && (activeCert?.accommodationMinutes || 0) > 0
   );
 
+  // Group banks by author/instructor
+  const groupedBanks = useMemo<Record<string, QuestionBank[]>>(() => {
+    const groups: Record<string, QuestionBank[]> = {};
+    banks.forEach((b) => {
+      const author = b.authorOrVendor || 'Outros / Simulado Geral';
+      if (!groups[author]) groups[author] = [];
+      groups[author].push(b);
+    });
+    return groups;
+  }, [banks]);
+
   // Initialize selected banks to all available
   useEffect(() => {
     if (banks.length > 0 && selectedBankIds.length === 0) {
@@ -61,10 +74,12 @@ export default function MockExamConfig({ onStartExam, onReviewAttempt }: MockExa
     }
   }, [banks, selectedBankIds.length]);
 
-  // Adjust questionCount if available questions change
-  const availableQuestionsCount = allQuestions.filter((q) =>
-    selectedBankIds.includes(q.bankId)
-  ).length;
+  // Adjust questionCount taking into account selected banks and domainFilter
+  const availableQuestionsCount = allQuestions.filter((q) => {
+    const inBank = selectedBankIds.includes(q.bankId);
+    const inDomain = selectedDomainFilter ? q.domainTag === selectedDomainFilter : true;
+    return inBank && inDomain;
+  }).length;
 
   useEffect(() => {
     if (availableQuestionsCount > 0 && questionCount > availableQuestionsCount) {
@@ -89,6 +104,20 @@ export default function MockExamConfig({ onStartExam, onReviewAttempt }: MockExa
     setSelectedBankIds(banks.map((b) => b.id));
   };
 
+  const handleSelectAuthorBanks = (author: string) => {
+    const authorBankIds = (groupedBanks[author] || []).map((b) => b.id);
+    const allSelected = authorBankIds.every((id) => selectedBankIds.includes(id));
+    if (allSelected) {
+      // Don't deselect if it would leave 0 selected
+      const remaining = selectedBankIds.filter((id) => !authorBankIds.includes(id));
+      if (remaining.length > 0) {
+        setSelectedBankIds(remaining);
+      }
+    } else {
+      setSelectedBankIds(Array.from(new Set([...selectedBankIds, ...authorBankIds])));
+    }
+  };
+
   const handleLaunch = () => {
     if (availableQuestionsCount === 0) return;
 
@@ -99,6 +128,7 @@ export default function MockExamConfig({ onStartExam, onReviewAttempt }: MockExa
       feedbackMode,
       useTimer,
       useAccommodation: useAccommodation && (activeCert.accommodationMinutes > 0),
+      domainFilter: selectedDomainFilter || undefined,
     });
   };
 
@@ -137,12 +167,17 @@ export default function MockExamConfig({ onStartExam, onReviewAttempt }: MockExa
               <span>{t('exam.configTitle')}</span>
             </h3>
 
-            {/* 1. Question Banks Selection */}
-            <div className="space-y-2.5">
+            {/* 1. Question Banks Selection Grouped by Instructor */}
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
-                  {t('exam.selectBanks')}
-                </label>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 block">
+                    {t('exam.selectBanks')}
+                  </label>
+                  <span className="text-[11px] text-stone-400 dark:text-stone-500">
+                    Selecione um ou mais simulados de professores para compor o exame
+                  </span>
+                </div>
                 <button
                   type="button"
                   onClick={handleSelectAllBanks}
@@ -152,41 +187,116 @@ export default function MockExamConfig({ onStartExam, onReviewAttempt }: MockExa
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {banks.map((bank) => {
-                  const count = allQuestions.filter((q) => q.bankId === bank.id).length;
-                  const isChecked = selectedBankIds.includes(bank.id);
+              <div className="space-y-3">
+                {(Object.entries(groupedBanks) as [string, QuestionBank[]][]).map(([author, authorBanks]) => {
+                  const authorSelectedCount = authorBanks.filter((b) => selectedBankIds.includes(b.id)).length;
+                  const allAuthorSelected = authorSelectedCount === authorBanks.length;
 
                   return (
                     <div
-                      key={bank.id}
-                      onClick={() => handleToggleBank(bank.id)}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                        isChecked
-                          ? 'border-amber-500 bg-amber-50/40 dark:bg-amber-950/20 text-stone-900 dark:text-white shadow-xs'
-                          : 'border-stone-200 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50 text-stone-500 dark:text-stone-400'
-                      }`}
+                      key={author}
+                      className="p-3 bg-stone-50/70 dark:bg-stone-800/40 rounded-xl border border-stone-200/70 dark:border-stone-800 space-y-2"
                     >
-                      <div className="flex items-center space-x-2.5 truncate pr-2">
-                        <span
-                          className={`w-4 h-4 rounded flex items-center justify-center shrink-0 text-white ${
-                            isChecked ? 'bg-amber-500' : 'bg-stone-200 dark:bg-stone-700'
-                          }`}
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center space-x-1.5 font-bold text-stone-800 dark:text-stone-200">
+                          <UserCheck className="w-3.5 h-3.5 text-amber-500" />
+                          <span>{author}</span>
+                          <span className="text-[11px] font-mono text-stone-400 font-normal">
+                            ({authorBanks.length} {authorBanks.length === 1 ? 'simulado' : 'simulados'})
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectAuthorBanks(author)}
+                          className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 hover:underline"
                         >
-                          {isChecked && <CheckCircle2 className="w-3.5 h-3.5" />}
-                        </span>
-                        <span className="text-xs font-semibold truncate">{bank.name}</span>
+                          {allAuthorSelected ? 'Desmarcar autor' : 'Selecionar autor'}
+                        </button>
                       </div>
-                      <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 shrink-0">
-                        {count} Qs
-                      </span>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {authorBanks.map((bank) => {
+                          const count = allQuestions.filter((q) => q.bankId === bank.id).length;
+                          const isChecked = selectedBankIds.includes(bank.id);
+
+                          return (
+                            <div
+                              key={bank.id}
+                              onClick={() => handleToggleBank(bank.id)}
+                              className={`p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                                isChecked
+                                  ? 'border-amber-500 bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-xs'
+                                  : 'border-stone-200 dark:border-stone-700 bg-white/60 dark:bg-stone-900/40 hover:bg-white text-stone-500 dark:text-stone-400'
+                              }`}
+                            >
+                              <div className="flex items-center space-x-2 truncate pr-2">
+                                <span
+                                  className={`w-4 h-4 rounded flex items-center justify-center shrink-0 text-white ${
+                                    isChecked ? 'bg-amber-500' : 'bg-stone-200 dark:bg-stone-700'
+                                  }`}
+                                >
+                                  {isChecked && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                </span>
+                                <span className="text-xs font-semibold truncate">{bank.name}</span>
+                              </div>
+                              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 shrink-0">
+                                {count} Qs
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })}
               </div>
 
-              <div className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">
-                {t('exam.totalAvailable', { n: availableQuestionsCount })}
+              {/* Optional Exam Domain Focus Filter */}
+              {activeCert.domains && activeCert.domains.length > 0 && (
+                <div className="pt-2 border-t border-stone-100 dark:border-stone-800 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center space-x-1.5">
+                      <Layers className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Foco por Domínio da Prova (Opcional)</span>
+                    </label>
+                    {selectedDomainFilter && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedDomainFilter(null)}
+                        className="text-[11px] text-amber-600 dark:text-amber-400 font-semibold hover:underline"
+                      >
+                        Limpar foco
+                      </button>
+                    )}
+                  </div>
+                  <select
+                    id="exam-domain-filter-select"
+                    value={selectedDomainFilter || ''}
+                    onChange={(e) => setSelectedDomainFilter(e.target.value ? e.target.value : null)}
+                    className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl text-xs font-medium text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                  >
+                    <option value="">Todos os Domínios (Simulado Completo Equilibrado)</option>
+                    {activeCert.domains.map((dom) => {
+                      const countInDomain = allQuestions.filter(
+                        (q) => selectedBankIds.includes(q.bankId) && q.domainTag === dom.name
+                      ).length;
+                      return (
+                        <option key={dom.name} value={dom.name}>
+                          Domínio {dom.order}: {dom.name} ({countInDomain} questões disponíveis)
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              )}
+
+              <div className="text-[11px] text-stone-500 dark:text-stone-400 font-medium flex items-center justify-between pt-1">
+                <span>{t('exam.totalAvailable', { n: availableQuestionsCount })}</span>
+                {selectedDomainFilter && (
+                  <span className="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 font-semibold">
+                    Filtro ativo: {selectedDomainFilter}
+                  </span>
+                )}
               </div>
             </div>
 

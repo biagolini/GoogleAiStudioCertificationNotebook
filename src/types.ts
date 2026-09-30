@@ -117,6 +117,7 @@ export interface QuestionBank {
   certId: string;
   name: string;
   description?: string;
+  authorOrVendor?: string; // e.g. "Stephane Maarek", "Tutorials Dojo", "Neal Davis", "Whizlabs"
   domainTags: string[];
   createdAt: number;
   updatedAt: number;
@@ -166,6 +167,7 @@ export interface ExamAttempt {
   };
   questionRecords: QuestionAttemptRecord[];
   bankIds: string[];
+  domainFilter?: string;
 }
 
 export interface UserSettings {
@@ -182,4 +184,5 @@ export interface MockExamConfigOptions {
   feedbackMode: ExamFeedbackMode;
   useTimer: boolean;
   useAccommodation: boolean;
+  domainFilter?: string;
 }

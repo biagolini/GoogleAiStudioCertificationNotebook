@@ -44,7 +44,11 @@ export default function ExamRunner({ config, onFinishExam, onExitExam }: ExamRun
 
   // 1. Prepare questions for this exam
   const [examQuestions] = useState<Question[]>(() => {
-    const all = getQuestionsForActiveCert().filter((q) => config.bankIds.includes(q.bankId));
+    const all = getQuestionsForActiveCert().filter((q) => {
+      const matchBank = config.bankIds.includes(q.bankId);
+      const matchDomain = config.domainFilter ? q.domainTag === config.domainFilter : true;
+      return matchBank && matchDomain;
+    });
     // Shuffle and pick requested count
     const shuffled = [...all].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, Math.min(config.questionCount, shuffled.length));

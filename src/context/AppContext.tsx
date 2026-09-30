@@ -16,6 +16,10 @@ import {
   SAMPLE_QUESTIONS,
   SAMPLE_NOTES,
 } from '../data/sampleStarterData';
+import {
+  generateStephaneMaarekMockSet,
+  generateGenericMockSet,
+} from '../data/mockQuestionBankGenerator';
 
 interface AppContextType {
   // Navigation & Active Scope
@@ -91,6 +95,7 @@ interface AppContextType {
 
   // Data helpers
   loadSampleStarterKit: () => void;
+  loadMockBanksForActiveCert: (authorName?: string) => void;
   resetAllData: () => void;
   exportDataJSON: () => string;
   importDataJSON: (jsonStr: string) => boolean;
@@ -401,19 +406,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
       persistCertifications([newCert, ...certifications]);
 
-      // Automatically create domain question banks if requested (default: true if domains present)
+      // Automatically create starter practice exam bank if requested (default: true if domains present)
       const shouldCreateBanks = options?.autoCreateDomainBanks !== false && certData.domains && certData.domains.length > 0;
       if (shouldCreateBanks && certData.domains) {
-        const domainBanks: QuestionBank[] = certData.domains.map((dom) => ({
-          id: `bank-${newCertId}-d${dom.order || 1}-${Math.random().toString(36).substr(2, 4)}`,
+        const initialBank: QuestionBank = {
+          id: `bank-${newCertId}-sim-1`,
           certId: newCertId,
-          name: `Domain ${dom.order}: ${dom.name}`,
-          description: dom.description,
-          domainTags: [dom.name],
+          name: 'Simulado 1 · Prática Geral (Exame Completo)',
+          authorOrVendor: 'Simulado Preparatório',
+          description: `Simulado completo cobrindo todos os ${certData.domains.length} domínios oficiais da prova.`,
+          domainTags: certData.domains.map((d) => d.name),
           createdAt: Date.now(),
           updatedAt: Date.now(),
-        }));
-        persistQuestionBanks([...domainBanks, ...questionBanks]);
+        };
+        persistQuestionBanks([initialBank, ...questionBanks]);
       }
 
       return newCert;
@@ -570,6 +576,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActiveCertId(SAMPLE_CERTIFICATIONS[0].id);
   }, [setActiveCertId]);
 
+  // Load realistic mock banks (e.g. Stephane Maarek 4 banks x 75 questions)
+  const loadMockBanksForActiveCert = useCallback((authorName?: string) => {
+    if (!activeCert) return;
+
+    const isAws = activeCert.id.includes('aws') || (activeCert.code && activeCert.code.includes('SAA'));
+    const mockData = isAws
+      ? generateStephaneMaarekMockSet(activeCert.id, activeCert.domains)
+      : generateGenericMockSet(activeCert, authorName || 'Prof. Especialista', 4, 75);
+
+    const otherBanks = questionBanks.filter((b) => b.certId !== activeCert.id);
+    const otherQuestions = questions.filter((q) => q.certId !== activeCert.id);
+
+    persistQuestionBanks([...mockData.banks, ...otherBanks]);
+    persistQuestions([...mockData.questions, ...otherQuestions]);
+    touchCertificationStudyTime(activeCert.id);
+  }, [activeCert, questionBanks, questions, touchCertificationStudyTime]);
+
   // Reset all
   const resetAllData = useCallback(() => {
     persistCertifications([]);
@@ -679,6 +702,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         saveExamAttempt,
         deleteExamAttempt,
         loadSampleStarterKit,
+        loadMockBanksForActiveCert,
         resetAllData,
         exportDataJSON,
         importDataJSON,

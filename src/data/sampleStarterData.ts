@@ -1,16 +1,39 @@
 import { Certification, Note, QuestionBank, Question } from '../types';
+import { generateStephaneMaarekMockSet } from './mockQuestionBankGenerator';
 
 export const SAMPLE_CERTIFICATIONS: Certification[] = [
   {
     id: 'cert-aws-saa',
-    name: 'AWS Certified Solutions Architect - Associate',
+    name: 'AWS Certified Solutions Architect – Associate',
     code: 'SAA-C03',
     icon: 'Cloud',
     color: '#f59e0b', // Amber
-    description: 'Validates ability to design resilient, high-performing, secure, and cost-optimized architectures on AWS.',
+    description: 'Valida a capacidade de projetar arquiteturas seguras, resilientes, de alto desempenho e otimizadas em custos na AWS.',
     examDurationMinutes: 130,
     accommodationMinutes: 30,
-    createdAt: Date.now() - 86400000 * 5,
+    domains: [
+      {
+        name: 'Domain 1: Design Secure Architectures',
+        order: 1,
+        description: 'Design secure access to AWS resources, secure workloads, and data encryption controls (30%).',
+      },
+      {
+        name: 'Domain 2: Design Resilient Architectures',
+        order: 2,
+        description: 'Design scalable, decoupled, multi-AZ, and disaster-tolerant architectures (26%).',
+      },
+      {
+        name: 'Domain 3: Design High-Performing Architectures',
+        order: 3,
+        description: 'Design high-performing compute, storage, networking, and database solutions (24%).',
+      },
+      {
+        name: 'Domain 4: Design Cost-Optimized Architectures',
+        order: 4,
+        description: 'Design cost-effective storage, compute, database, and network architectures (20%).',
+      },
+    ],
+    createdAt: Date.now() - 86400000 * 10,
     lastStudiedAt: Date.now() - 86400000 * 1,
   },
   {
@@ -19,149 +42,145 @@ export const SAMPLE_CERTIFICATIONS: Certification[] = [
     code: 'CKA',
     icon: 'Terminal',
     color: '#3b82f6', // Blue
-    description: 'Performance-based certification demonstrating competence in Kubernetes architecture, installation, configuration, and troubleshooting.',
+    description: 'Certificação prática baseada em desempenho avaliando administração, instalação, rede e troubleshooting de clusters Kubernetes.',
     examDurationMinutes: 120,
     accommodationMinutes: 0,
-    createdAt: Date.now() - 86400000 * 10,
+    domains: [
+      { name: 'Storage', order: 1, description: 'StorageClasses, PersistentVolumes, VolumeAccessModes (10%).' },
+      { name: 'Troubleshooting', order: 2, description: 'Cluster nodes, core components, worker nodes, and pods (30%).' },
+      { name: 'Workloads & Scheduling', order: 3, description: 'Deployments, DaemonSets, rolling updates, taints/tolerations (15%).' },
+      { name: 'Cluster Architecture, Installation & Config', order: 4, description: 'Kubeadm, etcd backup/restore, RBAC (25%).' },
+      { name: 'Services & Networking', order: 5, description: 'ClusterIP, Ingress, NetworkPolicies, CoreDNS (20%).' },
+    ],
+    createdAt: Date.now() - 86400000 * 12,
     lastStudiedAt: Date.now() - 86400000 * 2,
   },
 ];
 
+const stephaneMock = generateStephaneMaarekMockSet('cert-aws-saa', SAMPLE_CERTIFICATIONS[0].domains);
+
 export const SAMPLE_QUESTION_BANKS: QuestionBank[] = [
+  // --- AWS SAA-C03 Banks: 4 Simulados de 75 questões do Stephane Maarek ---
+  ...stephaneMock.banks,
+
+  // Outros professores para demonstrar agrupamento e filtros
   {
-    id: 'bank-aws-d1',
+    id: 'bank-aws-td',
     certId: 'cert-aws-saa',
-    name: 'Domain 1: Design Resilient Architectures',
-    description: 'Multi-AZ designs, decoupled architectures using SQS/SNS, Auto Scaling, and disaster recovery.',
-    domainTags: ['Resilient Architectures', 'Storage', 'Networking'],
-    createdAt: Date.now() - 86400000 * 4,
-    updatedAt: Date.now() - 86400000 * 2,
-  },
-  {
-    id: 'bank-aws-d2',
-    certId: 'cert-aws-saa',
-    name: 'Domain 2: Design High-Performing Architectures',
-    description: 'Compute performance, caching strategies with CloudFront & ElastiCache, high throughput DBs.',
-    domainTags: ['Compute', 'Caching', 'Databases'],
+    name: 'Simulado 1 · Tutorials Dojo / Jon Bonso',
+    authorOrVendor: 'Tutorials Dojo (Jon Bonso)',
+    description: 'Simulado de alta dificuldade no estilo clássico da Tutorials Dojo com cenários de pegadinhas, VPC Peering, Direct Connect e Disaster Recovery.',
+    domainTags: SAMPLE_CERTIFICATIONS[0].domains?.map((d) => d.name) || [],
     createdAt: Date.now() - 86400000 * 4,
     updatedAt: Date.now() - 86400000 * 1,
   },
+
+  // --- CKA Banks ---
   {
-    id: 'bank-k8s-cluster',
+    id: 'bank-k8s-sim1',
     certId: 'cert-k8s-cka',
-    name: 'Workloads & Scheduling',
-    description: 'Pod creation, deployments, daemonsets, node selectors, taints/tolerations, and resource limits.',
-    domainTags: ['Workloads', 'Scheduling', 'Troubleshooting'],
+    name: 'Simulado 1 · Mumshad Mannambeth (KodeKloud)',
+    authorOrVendor: 'KodeKloud',
+    description: 'Simulado completo cobrindo cenários imperativos de kubeadm, RBAC, troubleshooting de control plane e NetworkPolicies.',
+    domainTags: [
+      'Storage',
+      'Troubleshooting',
+      'Workloads & Scheduling',
+      'Cluster Architecture, Installation & Config',
+      'Services & Networking',
+    ],
     createdAt: Date.now() - 86400000 * 8,
-    updatedAt: Date.now() - 86400000 * 3,
+    updatedAt: Date.now() - 86400000 * 2,
+  },
+  {
+    id: 'bank-k8s-sim2',
+    certId: 'cert-k8s-cka',
+    name: 'Simulado 2 · Killer.sh (Exame Avançado)',
+    authorOrVendor: 'Killer.sh',
+    description: 'Simulado de alta pressão e dificuldade avançada idêntico ao ambiente do exame oficial CKA da Linux Foundation.',
+    domainTags: [
+      'Storage',
+      'Troubleshooting',
+      'Workloads & Scheduling',
+      'Cluster Architecture, Installation & Config',
+      'Services & Networking',
+    ],
+    createdAt: Date.now() - 86400000 * 7,
+    updatedAt: Date.now() - 86400000 * 2,
   },
 ];
 
 export const SAMPLE_QUESTIONS: Question[] = [
-  // AWS Multiple Choice
+  // 300 questões (4 simulados x 75 questões) distribuídas pelos 4 domínios oficiais da AWS SAA-C03
+  ...stephaneMock.questions,
+
+  // ====================================================
+  // SIMULADO 1 & 2 · KUBERNETES CKA
+  // ====================================================
   {
-    id: 'q-aws-1',
-    certId: 'cert-aws-saa',
-    bankId: 'bank-aws-d1',
-    type: 'multiple-choice',
-    prompt: 'A company runs an e-commerce application on Amazon EC2 instances behind an Application Load Balancer (ALB). During flash sales, traffic spikes exponentially and orders are dropped due to database write saturation. Which architecture provides the MOST decoupled and resilient solution to handle unexpected spikes in order submissions without losing orders?',
-    domainTag: 'Resilient Architectures',
-    options: [
-      { id: 'opt-1', text: 'Upgrade the database instance to the largest memory-optimized Amazon RDS instance with provisioned IOPS.', isCorrect: false },
-      { id: 'opt-2', text: 'Place an Amazon SQS FIFO queue between the web tier and an AWS Lambda worker tier to buffer write transactions.', isCorrect: true },
-      { id: 'opt-3', text: 'Enable Multi-AZ replication on RDS and configure the web tier to write synchronously to both master and standby.', isCorrect: false },
-      { id: 'opt-4', text: 'Deploy an Amazon ElastiCache Redis cluster and write directly to cache without database persistence.', isCorrect: false },
-    ],
-    explanation: 'Placing an Amazon SQS FIFO queue decouples the front-end submission from the backend ingestion rate, guaranteeing message preservation, ordering, and preventing database overload during sudden traffic spikes.',
-    createdAt: Date.now() - 86400000 * 3,
-    updatedAt: Date.now() - 86400000 * 3,
-  },
-  {
-    id: 'q-aws-2',
-    certId: 'cert-aws-saa',
-    bankId: 'bank-aws-d1',
-    type: 'multiple-choice',
-    prompt: 'A media company stores petabytes of video footage in Amazon S3 standard tier. Videos are accessed heavily during the first 30 days after upload, rarely accessed between 30 and 90 days, and must be retained for 7 years for compliance without requiring instant retrieval after 90 days. Which S3 Lifecycle policy minimizes storage costs while meeting compliance requirements?',
-    domainTag: 'Storage',
-    options: [
-      { id: 'opt-21', text: 'Transition to S3 Standard-IA after 30 days, transition to S3 Glacier Flexible Retrieval after 90 days, expire after 2555 days.', isCorrect: true },
-      { id: 'opt-22', text: 'Transition directly to S3 Glacier Deep Archive on day 1 with 2555-day retention.', isCorrect: false },
-      { id: 'opt-23', text: 'Transition to S3 One Zone-IA after 30 days and delete objects after 90 days.', isCorrect: false },
-      { id: 'opt-24', text: 'Keep in S3 Standard with Intelligent-Tiering and enable S3 Object Lock without lifecycle transitions.', isCorrect: false },
-    ],
-    explanation: 'S3 Standard-IA reduces cost for infrequently accessed data after 30 days. S3 Glacier Flexible Retrieval provides durable low-cost archive after 90 days, and expiration rule handles the 7-year retention policy (2555 days).',
-    createdAt: Date.now() - 86400000 * 2,
-    updatedAt: Date.now() - 86400000 * 2,
-  },
-  {
-    id: 'q-aws-3',
-    certId: 'cert-aws-saa',
-    bankId: 'bank-aws-d2',
-    type: 'multiple-choice',
-    prompt: 'A global web service experiences latency for users located in Europe and Asia when retrieving static assets from an Amazon S3 bucket hosted in us-east-1. Which configuration provides the lowest latency and optimal cost efficiency for global asset delivery?',
-    domainTag: 'Caching',
-    options: [
-      { id: 'opt-31', text: 'Create an Amazon CloudFront distribution with the S3 bucket configured as the origin and an Origin Access Control (OAC).', isCorrect: true },
-      { id: 'opt-32', text: 'Enable S3 Cross-Region Replication to 15 different AWS regions worldwide.', isCorrect: false },
-      { id: 'opt-33', text: 'Configure Amazon Route 53 Geolocation routing to redirect traffic to local EC2 web servers.', isCorrect: false },
-      { id: 'opt-34', text: 'Deploy an AWS Global Accelerator in front of the S3 bucket endpoints directly.', isCorrect: false },
-    ],
-    explanation: 'Amazon CloudFront caches static objects at edge locations worldwide, drastically decreasing latency for global users and reducing data transfer out costs from Amazon S3.',
-    createdAt: Date.now() - 86400000 * 2,
-    updatedAt: Date.now() - 86400000 * 2,
-  },
-  // Kubernetes Scenario Question
-  {
-    id: 'q-k8s-1',
+    id: 'q-k8s-s1-1',
     certId: 'cert-k8s-cka',
-    bankId: 'bank-k8s-cluster',
+    bankId: 'bank-k8s-sim1',
     type: 'scenario',
-    prompt: 'You are troubleshooting a pod named "payment-processor" in the "finance" namespace. The pod remains in a Pending state. Inspect the pod spec YAML and node taint details below, and identify what is preventing the pod from being scheduled on worker-node-02.',
-    domainTag: 'Scheduling',
+    domainTag: 'Workloads & Scheduling',
+    prompt: 'Você precisa implantar um Pod de monitoramento no namespace "monitoring" que deve executar em um nó de infraestrutura rotulado com "node-role=infra". Inspecione a especificação YAML abaixo e indique o campo necessário para garantir que o pod seja agendado exclusivamente nesse nó:',
     scenarioDetails: {
       scenarioType: 'yaml',
-      context: 'Node "worker-node-02" has taint: dedicated=finance:NoSchedule\nPod specification is provided below:',
+      context: 'Nó worker possui a label "node-role=infra".',
       codeSnippet: `apiVersion: v1
 kind: Pod
 metadata:
-  name: payment-processor
-  namespace: finance
+  name: cluster-agent
+  namespace: monitoring
 spec:
   containers:
-  - name: processor
-    image: redis:7-alpine
-  tolerations:
-  - key: "dedicated"
-    operator: "Equal"
-    value: "billing"
-    effect: "NoSchedule"`,
+  - name: agent
+    image: prometheus/node-exporter:v1.7.0
+  nodeSelector:
+    node-role: infra`,
     },
     options: [
-      { id: 'opt-k1', text: 'The pod toleration value is "billing" instead of matching the node taint value "finance".', isCorrect: true },
-      { id: 'opt-k2', text: 'The toleration operator must be "Exists" instead of "Equal" when a value is provided.', isCorrect: false },
-      { id: 'opt-k3', text: 'The namespace "finance" requires an explicit NetworkPolicy before scheduling.', isCorrect: false },
-      { id: 'opt-k4', text: 'The effect must be "NoExecute" rather than "NoSchedule".', isCorrect: false },
+      { id: 'opt-k1-1', text: 'O campo nodeSelector com a chave "node-role: infra" seleciona nós que possuem exatamente essa label correspondente.', isCorrect: true },
+      { id: 'opt-k1-2', text: 'O campo affinity com anti-affinity obrigatório em relação a pods de aplicação.', isCorrect: false },
+      { id: 'opt-k1-3', text: 'É obrigatório declarar um DaemonSet para agendar pods em nós específicos.', isCorrect: false },
+      { id: 'opt-k1-4', text: 'O agendador ignora nodeSelector caso o nó possua taints sem tolerations correspondentes.', isCorrect: false },
     ],
-    explanation: 'Worker node worker-node-02 is tainted with dedicated=finance:NoSchedule. The pod only tolerates dedicated=billing:NoSchedule. To schedule on this node, the toleration value must match "finance" or use operator: Exists.',
-    createdAt: Date.now() - 86400000 * 3,
-    updatedAt: Date.now() - 86400000 * 3,
+    explanation: 'O nodeSelector é a forma mais simples e direta de agendamento condicional baseado em labels de nós no Kubernetes.',
+    createdAt: Date.now() - 86400000 * 6,
+    updatedAt: Date.now() - 86400000 * 6,
   },
-  // Kubernetes Command Recall Flashcard
   {
-    id: 'q-k8s-2',
+    id: 'q-k8s-s1-2',
     certId: 'cert-k8s-cka',
-    bankId: 'bank-k8s-cluster',
+    bankId: 'bank-k8s-sim1',
     type: 'flashcard',
-    prompt: 'Which imperative kubectl command drains "node-1" for maintenance, safely evicting pods while ignoring DaemonSets and forcing removal of unmanaged local data pods?',
-    domainTag: 'Troubleshooting',
+    domainTag: 'Cluster Architecture, Installation & Config',
+    prompt: 'Qual comando etcdctl realiza o backup snapshot do banco de dados do etcd em um cluster Kubernetes com TLS habilitado?',
     flashcard: {
-      frontPrompt: 'What imperative kubectl command drains "node-1" for maintenance, safely ignoring DaemonSets and deleting emptyDir data?',
-      backAnswer: 'kubectl drain node-1 --ignore-daemonsets --delete-emptydir-data --force',
-      commandSnippet: 'kubectl drain node-1 --ignore-daemonsets --delete-emptydir-data --force',
+      frontPrompt: 'Qual comando etcdctl tira um snapshot consistente do etcd salvando em /opt/backup/etcd-snapshot.db?',
+      backAnswer: 'ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot save /opt/backup/etcd-snapshot.db',
+      commandSnippet: 'ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot save /opt/backup/etcd-snapshot.db',
     },
-    explanation: '--ignore-daemonsets prevents the drain command from failing on daemonset pods, and --delete-emptydir-data permits eviction even if pods use local emptyDir storage.',
-    createdAt: Date.now() - 86400000 * 2,
-    updatedAt: Date.now() - 86400000 * 2,
+    explanation: 'No exame CKA, salvar e restaurar snapshots do etcd é uma das questões práticas mais comuns. O parâmetro snapshot save cria o arquivo pontual do estado do cluster.',
+    createdAt: Date.now() - 86400000 * 5,
+    updatedAt: Date.now() - 86400000 * 5,
+  },
+  {
+    id: 'q-k8s-s2-1',
+    certId: 'cert-k8s-cka',
+    bankId: 'bank-k8s-sim2',
+    type: 'scenario',
+    domainTag: 'Troubleshooting',
+    prompt: 'Um nó worker-02 entrou em estado "NotReady". Ao inspecionar os logs do sistema operacional com journalctl, você nota erros recorrentes de conexão do kubelet com a porta 6443 do kube-apiserver. Qual das opções a seguir é a causa MAIS provável e ação de resolução?',
+    options: [
+      { id: 'opt-k2-1', text: 'O certificado do kubelet expirou ou o arquivo de configuração /etc/kubernetes/kubelet.conf aponta para o endereço IP incorreto do Control Plane.', isCorrect: true },
+      { id: 'opt-k2-2', text: 'O CoreDNS do cluster parou de funcionar e impediu o agendamento de novos pods.', isCorrect: false },
+      { id: 'opt-k2-3', text: 'O nó worker atingiu o limite de PersistentVolumes permitidos.', isCorrect: false },
+      { id: 'opt-k2-4', text: 'O kube-proxy foi desinstalado acidentalmente.', isCorrect: false },
+    ],
+    explanation: 'Quando um nó fica NotReady por falha de comunicação entre kubelet e API Server, as causas primárias são certificados de cliente expirados em /var/lib/kubelet/pki ou configuração incorreta do servidor no kubelet.conf.',
+    createdAt: Date.now() - 86400000 * 4,
+    updatedAt: Date.now() - 86400000 * 4,
   },
 ];
 
