@@ -144,6 +144,10 @@ Caso você queira utilizar suas próprias credenciais do Google Cloud para a sua
    ```
    *(Caso faça deploy no GitHub Pages via GitHub Actions, você pode adicionar esse valor em **Settings > Secrets and variables > Actions > New repository secret** com o nome `VITE_GOOGLE_CLIENT_ID`)*.
 
+📖 **Guia Completo e Passo a Passo (Anônimo):**  
+Para um guia completo passo a passo com resolução de erros comuns (`Error 401: invalid_client`, `origin_mismatch`, etc.), consulte:  
+👉 **[`docs/google-cloud-oauth-setup.md`](docs/google-cloud-oauth-setup.md)**
+
 ---
 
 ## 📂 Estrutura de Diretórios

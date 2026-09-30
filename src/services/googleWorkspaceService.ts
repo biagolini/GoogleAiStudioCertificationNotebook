@@ -43,6 +43,7 @@ const STORAGE_KEYS = {
   USER_EMAIL: 'certstudy_gworkspace_user_email',
   FOLDER_ID: 'certstudy_gworkspace_folder_id',
   LAST_SYNC: 'certstudy_gworkspace_last_sync',
+  CUSTOM_CLIENT_ID: 'certstudy_custom_google_client_id',
 };
 
 class GoogleWorkspaceService {
@@ -50,8 +51,32 @@ class GoogleWorkspaceService {
   private clientId: string = '';
 
   constructor() {
-    // Look up client ID from env if provided or platform config
+    // Look up client ID from env if provided
     this.clientId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || '';
+  }
+
+  public getCustomClientId(): string {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.CUSTOM_CLIENT_ID) || '';
+    } catch {
+      return '';
+    }
+  }
+
+  public setCustomClientId(clientId: string): void {
+    try {
+      if (clientId && clientId.trim()) {
+        localStorage.setItem(STORAGE_KEYS.CUSTOM_CLIENT_ID, clientId.trim());
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.CUSTOM_CLIENT_ID);
+      }
+    } catch {}
+  }
+
+  public getEffectiveClientId(): string {
+    const fromCustom = this.getCustomClientId();
+    const fromEnv = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID;
+    return (fromCustom || fromEnv || this.clientId || '').trim();
   }
 
   /**
@@ -124,7 +149,13 @@ class GoogleWorkspaceService {
   public async requestAccessToken(clientIdOverride?: string): Promise<string> {
     await this.loadGsiScript();
 
-    const effectiveClientId = clientIdOverride || this.clientId || (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID;
+    const effectiveClientId = (clientIdOverride || this.getEffectiveClientId()).trim();
+
+    if (!effectiveClientId || !effectiveClientId.includes('.apps.googleusercontent.com') || effectiveClientId.length < 25) {
+      throw new Error(
+        'Google OAuth Client ID is missing or invalid. Please configure VITE_GOOGLE_CLIENT_ID in your GitHub Secrets or enter it under Settings > Google Workspace.'
+      );
+    }
 
     return new Promise((resolve, reject) => {
       if (!window.google?.accounts?.oauth2) {
@@ -133,7 +164,7 @@ class GoogleWorkspaceService {
 
       try {
         const client = window.google.accounts.oauth2.initTokenClient({
-          client_id: effectiveClientId || '422650259932-apps.googleusercontent.com',
+          client_id: effectiveClientId,
           scope: SCOPES,
           callback: async (tokenResponse: any) => {
             if (tokenResponse.error) {

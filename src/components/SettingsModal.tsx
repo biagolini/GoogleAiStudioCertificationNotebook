@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useTranslation } from '../i18n/LanguageContext';
 import { useGoogleWorkspace } from '../context/GoogleWorkspaceContext';
+import { googleWorkspaceService } from '../services/googleWorkspaceService';
 import {
   X,
   Sun,
@@ -21,6 +22,10 @@ import {
   RefreshCw,
   FolderSync,
   LogOut,
+  Key,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { LanguageCode } from '../i18n/translations';
 
@@ -49,9 +54,17 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [importErrorMsg, setImportErrorMsg] = useState<string | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isDriveOperating, setIsDriveOperating] = useState(false);
+  const [showOAuthConfig, setShowOAuthConfig] = useState(false);
+  const [customClientIdInput, setCustomClientIdInput] = useState(() => googleWorkspaceService.getEffectiveClientId());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
+
+  const handleSaveCustomClientId = () => {
+    googleWorkspaceService.setCustomClientId(customClientIdInput);
+    setImportSuccessMsg('Google Client ID updated! You can now click Connect Google.');
+    setTimeout(() => setImportSuccessMsg(null), 4000);
+  };
 
   const handleDriveBackup = async () => {
     setIsDriveOperating(true);
@@ -329,6 +342,66 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   >
                     <LogOut className="w-3.5 h-3.5" />
                   </button>
+                )}
+              </div>
+
+              {/* Error diagnostic banner */}
+              {gState.error && (
+                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 rounded-xl space-y-1.5 text-xs">
+                  <div className="flex items-center space-x-1.5 font-bold text-amber-800 dark:text-amber-300">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                    <span>Connection Issue</span>
+                  </div>
+                  <p className="text-amber-700 dark:text-amber-300/90 leading-relaxed font-mono text-[11px] break-words">
+                    {gState.error}
+                  </p>
+                  <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                    Make sure your OAuth Client ID is registered in Google Cloud Console with your site URL in Authorized JavaScript origins.
+                  </p>
+                </div>
+              )}
+
+              {/* Advanced OAuth Setup Toggle */}
+              <div className="pt-1 border-t border-stone-200/50 dark:border-stone-700/50">
+                <button
+                  type="button"
+                  onClick={() => setShowOAuthConfig(!showOAuthConfig)}
+                  className="w-full flex items-center justify-between text-[11px] font-semibold text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 py-1 transition-colors"
+                >
+                  <span className="flex items-center space-x-1">
+                    <Key className="w-3 h-3 text-stone-400" />
+                    <span>Google OAuth Client ID Configuration</span>
+                  </span>
+                  {showOAuthConfig ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+
+                {showOAuthConfig && (
+                  <div className="mt-2 p-3 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 space-y-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-stone-700 dark:text-stone-300 block">
+                        OAuth 2.0 Web Client ID
+                      </label>
+                      <input
+                        type="text"
+                        value={customClientIdInput}
+                        onChange={(e) => setCustomClientIdInput(e.target.value)}
+                        placeholder="123456789...apps.googleusercontent.com"
+                        className="w-full px-2.5 py-1.5 text-xs font-mono rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-stone-400 dark:text-stone-500">
+                        Saved in browser storage (BYOS).
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleSaveCustomClientId}
+                        className="px-3 py-1 bg-stone-800 hover:bg-stone-900 dark:bg-stone-200 dark:hover:bg-white text-white dark:text-stone-900 text-xs font-semibold rounded-lg transition-colors"
+                      >
+                        Save Client ID
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
 
