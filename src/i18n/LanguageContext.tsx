@@ -43,7 +43,18 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const currentLangTable = translations[language] || {};
       const fallbackTable = translations.en || {};
 
-      let text = currentLangTable[key] || fallbackTable[key] || key;
+      let alias = '';
+      if (key.startsWith('common.')) {
+        alias = 'app.' + key.slice(7);
+      } else if (key.startsWith('app.')) {
+        alias = 'common.' + key.slice(4);
+      }
+
+      let text = currentLangTable[key] || 
+                 (alias && currentLangTable[alias]) || 
+                 fallbackTable[key] || 
+                 (alias && fallbackTable[alias]) || 
+                 key;
 
       if (params) {
         Object.entries(params).forEach(([paramKey, paramVal]) => {

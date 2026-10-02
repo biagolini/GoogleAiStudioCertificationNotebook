@@ -136,9 +136,7 @@ export default function ImportQuestionsAiModal({
         });
 
         if (candidates.length === 0) {
-          setFileError(
-            'Nenhum arquivo .html ou .md foi encontrado dentro do arquivo .zip. Certifique-se de que o zip contém o documento com as perguntas.'
-          );
+          setFileError(t('gemini.importNoValidFiles'));
           return;
         }
 
@@ -560,12 +558,12 @@ export default function ImportQuestionsAiModal({
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Processando com Gemini...</span>
+                    <span>{t('gemini.importProcessing')}</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    <span>Iniciar Processamento com Gemini AI</span>
+                    <span>{t('gemini.importStartParsing')}</span>
                   </>
                 )}
               </button>
@@ -576,7 +574,7 @@ export default function ImportQuestionsAiModal({
                 className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-2xl shadow-md transition-all flex items-center space-x-2"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Salvar {parsedQuestions.length} Questões no Banco</span>
+                <span>{t('gemini.importSaveQuestions', { n: parsedQuestions.length })}</span>
               </button>
             )}
           </div>

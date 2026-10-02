@@ -68,16 +68,16 @@ export default function InProgressExamsList({ onResumeSession }: InProgressExams
           <div className="space-y-0.5">
             <div className="flex items-center space-x-2">
               <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide bg-amber-500 text-stone-950">
-                Pausado
+                {t('exam.paused')}
               </span>
               <span className="text-xs font-bold text-stone-900 dark:text-white">
-                {isOtherCert ? (cert?.name || session.certName || 'Certificação') : 'Simulado em Andamento'}
+                {isOtherCert ? (cert?.name || session.certName || t('workspace.certification')) : t('exam.inProgressExam')}
               </span>
             </div>
             <p className="text-[11px] text-stone-500 dark:text-stone-400 flex items-center space-x-2">
               <span className="flex items-center space-x-1">
                 <Calendar className="w-3 h-3 text-stone-400" />
-                <span>Pausado em {formatDate(session.lastPausedAt || session.createdAt)}</span>
+                <span>{t('exam.pausedAt', { date: formatDate(session.lastPausedAt || session.createdAt) })}</span>
               </span>
               <span>·</span>
               <span className="capitalize">
@@ -98,18 +98,18 @@ export default function InProgressExamsList({ onResumeSession }: InProgressExams
               className="flex items-center space-x-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-stone-950 font-extrabold text-xs rounded-xl shadow-xs transition-transform active:scale-95 cursor-pointer"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
-              <span>Continuar Simulado</span>
+              <span>{t('exam.continueExam')}</span>
             </button>
 
             <button
               type="button"
               onClick={() => {
-                if (confirm('Deseja realmente descartar este simulado pausado? O progresso não salvo será perdido.')) {
+                if (confirm(t('exam.discardConfirm'))) {
                   deleteInProgressSession(session.id);
                 }
               }}
               className="p-2 text-stone-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
-              title="Descartar Simulado"
+              title={t('exam.discardExam')}
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -120,15 +120,15 @@ export default function InProgressExamsList({ onResumeSession }: InProgressExams
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-stone-700 dark:text-stone-300 font-semibold flex items-center space-x-1.5">
-              <span>Progresso:</span>
+              <span>{t('exam.progressLabel')}</span>
               <span className="font-mono text-stone-900 dark:text-white font-bold">
-                {answeredCount} de {totalQ} questões ({percentAnswered}%)
+                {t('exam.progressCount', { answered: answeredCount, total: totalQ, percent: percentAnswered })}
               </span>
             </span>
 
             <span className="text-stone-500 dark:text-stone-400 font-mono text-[11px] flex items-center space-x-1">
               <Clock className="w-3.5 h-3.5 text-amber-500" />
-              <span>Tempo decorrido: {formatSeconds(session.totalElapsedSeconds)}</span>
+              <span>{t('exam.timeElapsedLabel', { time: formatSeconds(session.totalElapsedSeconds) })}</span>
             </span>
           </div>
 
@@ -141,8 +141,8 @@ export default function InProgressExamsList({ onResumeSession }: InProgressExams
           </div>
 
           <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 pt-1">
-            <span>Parou na Questão #{session.currentIndex + 1}</span>
-            <span>{totalQ - answeredCount} pendentes</span>
+            <span>{t('exam.stoppedAtQuestion', { n: session.currentIndex + 1 })}</span>
+            <span>{t('exam.pendingQuestions', { n: totalQ - answeredCount })}</span>
           </div>
         </div>
       </div>
@@ -154,10 +154,10 @@ export default function InProgressExamsList({ onResumeSession }: InProgressExams
       <div className="p-8 text-center bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl space-y-2">
         <Clock className="w-8 h-8 text-stone-300 dark:text-stone-600 mx-auto" />
         <h4 className="text-xs font-bold text-stone-700 dark:text-stone-300 uppercase tracking-wider">
-          Nenhum simulado pausado
+          {t('exam.noPausedExams')}
         </h4>
         <p className="text-xs text-stone-400 dark:text-stone-500 max-w-sm mx-auto">
-          Ao fazer um exame, clique em <strong>Pausar</strong> para salvar seu progresso e continuar a qualquer momento.
+          {t('exam.noPausedExamsDesc')}
         </p>
       </div>
     );
