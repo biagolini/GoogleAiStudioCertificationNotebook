@@ -52,6 +52,7 @@ export default function StudentProfileView() {
   const [title, setTitle] = useState(studentProfile.title);
   const [bio, setBio] = useState(studentProfile.bio);
   const [experienceLevel, setExperienceLevel] = useState(studentProfile.experienceLevel);
+  const [nativeLanguage, setNativeLanguage] = useState(studentProfile.nativeLanguage || 'pt');
   const [linkedinUrl, setLinkedinUrl] = useState(studentProfile.linkedinUrl || '');
   const [githubUrl, setGithubUrl] = useState(studentProfile.githubUrl || '');
   const [saveToast, setSaveToast] = useState(false);
@@ -76,6 +77,7 @@ export default function StudentProfileView() {
       title: title.trim(),
       bio: bio.trim(),
       experienceLevel,
+      nativeLanguage,
       linkedinUrl: linkedinUrl.trim(),
       githubUrl: githubUrl.trim(),
     });
@@ -294,6 +296,32 @@ export default function StudentProfileView() {
                 <option value="advanced">{t('profile.expAdvanced')}</option>
                 <option value="lead">{t('profile.expLead')}</option>
               </select>
+            </div>
+
+            {/* Native Language for Translation */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center justify-between">
+                <span>{t('profile.nativeLanguageLabel')}</span>
+                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">Google Translate</span>
+              </label>
+              <select
+                id="student-native-language-select"
+                value={nativeLanguage}
+                onChange={(e) => setNativeLanguage(e.target.value)}
+                className="w-full px-3 py-2 text-xs bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+              >
+                <option value="pt">🇧🇷 Português (Brasil)</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="en">🇺🇸 English</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="ja">🇯🇵 日本語</option>
+                <option value="zh-CN">🇨🇳 简体中文</option>
+              </select>
+              <p className="text-[10px] text-stone-400">
+                {t('profile.nativeLanguageHint')}
+              </p>
             </div>
 
             {/* Bio / Study Goals */}

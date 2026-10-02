@@ -40,6 +40,7 @@ export interface StudentProfile {
   certStatuses: Record<string, StudentCertStatus>;
   linkedinUrl?: string;
   githubUrl?: string;
+  nativeLanguage?: string; // e.g. 'pt-BR', 'es', 'fr', 'de', 'it', 'en'
   updatedAt: number;
 }
 
@@ -84,6 +85,10 @@ export interface QuestionOption {
   id: string;
   text: string;
   isCorrect: boolean;
+  explanation?: string; // Per-option explanation/comment ("COMMENT")
+  comment?: string; // Alias for per-option comment
+  imageUrl?: string; // Image for the option itself (visible before answering)
+  commentImageUrl?: string; // Image for the comment (visible after answering)
 }
 
 export interface Question {
@@ -95,11 +100,14 @@ export interface Question {
   domainTag: string; // e.g. "Networking", "Security", "Storage", "Compute"
   options?: QuestionOption[]; // for multiple choice or scenario multiple-choice
   allowMultipleAnswers?: boolean;
+  imageUrl?: string; // Image in question prompt (visible before answering)
+  explanationImageUrl?: string; // Image in general comment/rationale (visible after answering)
   scenarioDetails?: {
     context?: string;
     codeSnippet?: string; // YAML, bash command, log output
     language?: string;
     scenarioType?: 'yaml' | 'command' | 'symptom';
+    imageUrl?: string;
   };
   expectedFreeText?: string; // for free-text scenario answers
   flashcard?: {
@@ -107,7 +115,7 @@ export interface Question {
     backAnswer: string;
     commandSnippet?: string;
   };
-  explanation?: string;
+  explanation?: string; // General question comment/rationale ("GENERAL COMMENT")
   createdAt: number;
   updatedAt: number;
 }
@@ -185,4 +193,18 @@ export interface MockExamConfigOptions {
   useTimer: boolean;
   useAccommodation: boolean;
   domainFilter?: string;
+}
+
+export interface InProgressExamSession {
+  id: string;
+  certId: string;
+  certName?: string;
+  config: MockExamConfigOptions;
+  questionIds: string[];
+  currentIndex: number;
+  records: Record<string, QuestionAttemptRecord>;
+  totalElapsedSeconds: number;
+  questionTimeElapsed: number;
+  lastPausedAt: number;
+  createdAt: number;
 }

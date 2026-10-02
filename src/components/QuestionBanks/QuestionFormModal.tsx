@@ -14,6 +14,10 @@ import {
   FileCode,
   Sparkles,
   Terminal,
+  ImageIcon,
+  MessageSquare,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 interface QuestionFormModalProps {
@@ -38,6 +42,9 @@ export default function QuestionFormModal({
     questionToEdit?.domainTag || activeCert?.domains?.[0]?.name || bank.domainTags[0] || ''
   );
   const [explanation, setExplanation] = useState(questionToEdit?.explanation || '');
+  const [imageUrl, setImageUrl] = useState(questionToEdit?.imageUrl || '');
+  const [explanationImageUrl, setExplanationImageUrl] = useState(questionToEdit?.explanationImageUrl || '');
+  const [expandedOptionDetailsId, setExpandedOptionDetailsId] = useState<string | null>(null);
 
   // Multiple Choice / Scenario choices options
   const [options, setOptions] = useState<QuestionOption[]>(
@@ -112,12 +119,21 @@ export default function QuestionFormModal({
       prompt: type === 'flashcard' ? flashcardFront.trim() : prompt.trim(),
       domainTag: domainTag.trim() || 'General',
       explanation: explanation.trim(),
+      imageUrl: imageUrl.trim() || undefined,
+      explanationImageUrl: explanationImageUrl.trim() || undefined,
     };
 
     let fullData: any = { ...baseQuestionData };
 
     if (type === 'multiple-choice') {
-      fullData.options = options.map((o) => ({ ...o, text: o.text.trim() }));
+      fullData.options = options.map((o) => ({
+        ...o,
+        text: o.text.trim(),
+        comment: o.comment?.trim() || o.explanation?.trim() || undefined,
+        explanation: o.comment?.trim() || o.explanation?.trim() || undefined,
+        imageUrl: o.imageUrl?.trim() || undefined,
+        commentImageUrl: o.commentImageUrl?.trim() || undefined,
+      }));
       fullData.allowMultipleAnswers = options.filter((o) => o.isCorrect).length > 1;
     } else if (type === 'scenario') {
       fullData.scenarioDetails = {
@@ -126,7 +142,14 @@ export default function QuestionFormModal({
         scenarioType,
       };
       // Scenarios can use multiple choice options or free text
-      fullData.options = options.map((o) => ({ ...o, text: o.text.trim() }));
+      fullData.options = options.map((o) => ({
+        ...o,
+        text: o.text.trim(),
+        comment: o.comment?.trim() || o.explanation?.trim() || undefined,
+        explanation: o.comment?.trim() || o.explanation?.trim() || undefined,
+        imageUrl: o.imageUrl?.trim() || undefined,
+        commentImageUrl: o.commentImageUrl?.trim() || undefined,
+      }));
       fullData.expectedFreeText = expectedFreeText.trim();
     } else if (type === 'flashcard') {
       fullData.flashcard = {
@@ -282,19 +305,45 @@ export default function QuestionFormModal({
 
           {/* Multiple Choice & Scenario Common Prompt */}
           {type !== 'flashcard' && (
-            <div>
-              <label className="block font-bold text-stone-700 dark:text-stone-300 mb-1">
-                {t('question.promptLabel')} *
-              </label>
-              <textarea
-                id="question-prompt-input"
-                rows={3}
-                required
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder={t('question.promptPlaceholder')}
-                className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-stone-900 dark:text-white resize-none"
-              />
+            <div className="space-y-2">
+              <div>
+                <label className="block font-bold text-stone-700 dark:text-stone-300 mb-1">
+                  {t('question.promptLabel')} *
+                </label>
+                <textarea
+                  id="question-prompt-input"
+                  rows={3}
+                  required
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder={t('question.promptPlaceholder')}
+                  className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-stone-900 dark:text-white resize-none"
+                />
+              </div>
+
+              {/* Prompt Image URL */}
+              <div>
+                <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1 flex items-center space-x-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Imagem do Enunciado / Diagrama da Questão (opcional - visível antes da resposta)</span>
+                </label>
+                <input
+                  type="text"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="URL da imagem (ex: https://... ou data:image/...)"
+                  className="w-full px-3 py-1.5 text-xs bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-900 dark:text-white focus:outline-none"
+                />
+                {imageUrl && (
+                  <div className="pt-1.5">
+                    <img
+                      src={imageUrl}
+                      alt="Prévia"
+                      className="max-h-24 w-auto rounded border border-stone-200 dark:border-stone-700 object-contain"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -379,67 +428,188 @@ export default function QuestionFormModal({
                 </button>
               </div>
 
-              <div className="space-y-2">
-                {options.map((opt, index) => (
-                  <div key={opt.id} className="flex items-center space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleCorrectOption(opt.id)}
-                      className={`p-1.5 rounded-lg transition-all ${
-                        opt.isCorrect
-                          ? 'bg-emerald-500 text-white shadow-xs'
-                          : 'bg-stone-100 dark:bg-stone-800 text-stone-400 hover:text-stone-600'
-                      }`}
-                      title={t('question.markCorrect')}
+              <div className="space-y-3">
+                {options.map((opt, index) => {
+                  const isExpanded = expandedOptionDetailsId === opt.id;
+                  const letter = String.fromCharCode(65 + index);
+                  const hasDetails = Boolean(opt.comment || opt.imageUrl || opt.commentImageUrl);
+
+                  return (
+                    <div
+                      key={opt.id}
+                      className="p-2.5 rounded-xl border border-stone-200 dark:border-stone-700/80 bg-stone-50/50 dark:bg-stone-800/30 space-y-2"
                     >
-                      {opt.isCorrect ? (
-                        <CheckCircle2 className="w-4 h-4" />
-                      ) : (
-                        <Circle className="w-4 h-4" />
+                      <div className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleCorrectOption(opt.id)}
+                          className={`p-1.5 rounded-lg transition-all ${
+                            opt.isCorrect
+                              ? 'bg-emerald-500 text-white shadow-xs'
+                              : 'bg-stone-100 dark:bg-stone-800 text-stone-400 hover:text-stone-600'
+                          }`}
+                          title={t('question.markCorrect')}
+                        >
+                          {opt.isCorrect ? (
+                            <CheckCircle2 className="w-4 h-4" />
+                          ) : (
+                            <Circle className="w-4 h-4" />
+                          )}
+                        </button>
+
+                        <input
+                          type="text"
+                          required
+                          value={opt.text}
+                          onChange={(e) => handleOptionTextChange(opt.id, e.target.value)}
+                          placeholder={`${t('question.optionPlaceholder')} (${letter})`}
+                          className={`flex-1 px-3 py-1.5 bg-white dark:bg-stone-900 border rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-xs sm:text-sm text-stone-900 dark:text-white ${
+                            opt.isCorrect
+                              ? 'border-emerald-500/60 dark:border-emerald-500/60 bg-emerald-50/20 dark:bg-emerald-950/20'
+                              : 'border-stone-200 dark:border-stone-700'
+                          }`}
+                        />
+
+                        {/* Toggle Option Details (Comment & Images) */}
+                        <button
+                          type="button"
+                          onClick={() => setExpandedOptionDetailsId(isExpanded ? null : opt.id)}
+                          className={`px-2 py-1.5 text-xs rounded-xl border flex items-center space-x-1 font-bold transition-colors ${
+                            hasDetails
+                              ? 'border-amber-400 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300'
+                              : 'border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500'
+                          }`}
+                          title="Adicionar comentário ou imagens a esta alternativa"
+                        >
+                          <MessageSquare className="w-3 h-3" />
+                          <span className="hidden sm:inline">Comentário/Imagem</span>
+                          {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        </button>
+
+                        {options.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveOption(opt.id)}
+                            className="p-1.5 text-stone-400 hover:text-rose-500 rounded-lg"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Expanded per-option fields */}
+                      {isExpanded && (
+                        <div className="p-3 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 space-y-2.5 animate-in fade-in text-xs">
+                          {/* Option Comment */}
+                          <div>
+                            <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 mb-1">
+                              Comentário da Alternativa {letter} (visível após responder no modo instantâneo)
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={opt.comment || opt.explanation || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setOptions(
+                                  options.map((o) =>
+                                    o.id === opt.id ? { ...o, comment: val, explanation: val } : o
+                                  )
+                                );
+                              }}
+                              placeholder={`Explique por que a opção ${letter} está certa ou errada...`}
+                              className="w-full px-2.5 py-1.5 text-xs bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-900 dark:text-white resize-none"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {/* Option Image */}
+                            <div>
+                              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 mb-0.5">
+                                Imagem da Alternativa (visível antes de responder)
+                              </label>
+                              <input
+                                type="text"
+                                value={opt.imageUrl || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setOptions(
+                                    options.map((o) => (o.id === opt.id ? { ...o, imageUrl: val } : o))
+                                  );
+                                }}
+                                placeholder="URL da imagem..."
+                                className="w-full px-2.5 py-1 text-[11px] bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg"
+                              />
+                            </div>
+
+                            {/* Option Comment Image */}
+                            <div>
+                              <label className="block text-[11px] font-bold text-stone-600 dark:text-stone-400 mb-0.5">
+                                Imagem do Comentário (visível após responder)
+                              </label>
+                              <input
+                                type="text"
+                                value={opt.commentImageUrl || ''}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setOptions(
+                                    options.map((o) =>
+                                      o.id === opt.id ? { ...o, commentImageUrl: val } : o
+                                    )
+                                  );
+                                }}
+                                placeholder="URL da imagem..."
+                                className="w-full px-2.5 py-1 text-[11px] bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg"
+                              />
+                            </div>
+                          </div>
+                        </div>
                       )}
-                    </button>
-
-                    <input
-                      type="text"
-                      required
-                      value={opt.text}
-                      onChange={(e) => handleOptionTextChange(opt.id, e.target.value)}
-                      placeholder={`${t('question.optionPlaceholder')} (${String.fromCharCode(65 + index)})`}
-                      className={`flex-1 px-3 py-1.5 bg-stone-50 dark:bg-stone-800/80 border rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-stone-900 dark:text-white ${
-                        opt.isCorrect
-                          ? 'border-emerald-500/60 dark:border-emerald-500/60 bg-emerald-50/20 dark:bg-emerald-950/20'
-                          : 'border-stone-200 dark:border-stone-700'
-                      }`}
-                    />
-
-                    {options.length > 2 && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveOption(opt.id)}
-                        className="p-1.5 text-stone-400 hover:text-rose-500 rounded-lg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {/* Explanation / Rationale */}
-          <div>
-            <label className="block font-bold text-stone-700 dark:text-stone-300 mb-1">
-              {t('question.explanationLabel')}
-            </label>
-            <textarea
-              id="question-explanation-input"
-              rows={2}
-              value={explanation}
-              onChange={(e) => setExplanation(e.target.value)}
-              placeholder={t('question.explanationPlaceholder')}
-              className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-stone-900 dark:text-white resize-none"
-            />
+          <div className="space-y-2">
+            <div>
+              <label className="block font-bold text-stone-700 dark:text-stone-300 mb-1">
+                {t('question.explanationLabel')}
+              </label>
+              <textarea
+                id="question-explanation-input"
+                rows={2}
+                value={explanation}
+                onChange={(e) => setExplanation(e.target.value)}
+                placeholder={t('question.explanationPlaceholder')}
+                className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/30 text-stone-900 dark:text-white resize-none"
+              />
+            </div>
+
+            {/* Explanation Image URL */}
+            <div>
+              <label className="block text-xs font-bold text-stone-600 dark:text-stone-400 mb-1 flex items-center space-x-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Imagem da Justificativa Geral (opcional - visível após responder)</span>
+              </label>
+              <input
+                type="text"
+                value={explanationImageUrl}
+                onChange={(e) => setExplanationImageUrl(e.target.value)}
+                placeholder="URL da imagem (ex: https://... ou data:image/...)"
+                className="w-full px-3 py-1.5 text-xs bg-stone-50 dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-900 dark:text-white focus:outline-none"
+              />
+              {explanationImageUrl && (
+                <div className="pt-1.5">
+                  <img
+                    src={explanationImageUrl}
+                    alt="Prévia da Justificativa"
+                    className="max-h-24 w-auto rounded border border-stone-200 dark:border-stone-700 object-contain"
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center justify-end space-x-2 pt-3 border-t border-stone-200 dark:border-stone-800">

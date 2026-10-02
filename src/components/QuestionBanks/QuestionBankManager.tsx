@@ -18,8 +18,11 @@ import {
   BookOpen,
   PieChart,
   Check,
+  Sparkles,
 } from 'lucide-react';
 import QuestionFormModal from './QuestionFormModal';
+import GeminiQuestionModal from '../Gemini/GeminiQuestionModal';
+import ImportQuestionsAiModal from './ImportQuestionsAiModal';
 
 export default function QuestionBankManager() {
   const {
@@ -58,6 +61,13 @@ export default function QuestionBankManager() {
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDomainFilter, setSelectedDomainFilter] = useState<string | null>(null);
+
+  // Gemini question tutor modal
+  const [geminiModalQuestion, setGeminiModalQuestion] = useState<Question | null>(null);
+
+  // Gemini AI ZIP / Document batch import modal
+  const [isImportAiModalOpen, setIsImportAiModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   if (!activeCert) return null;
 
@@ -218,6 +228,22 @@ export default function QuestionBankManager() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-in fade-in duration-150">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-700/80 rounded-2xl flex items-center justify-between text-xs text-emerald-900 dark:text-emerald-100 shadow-sm animate-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center space-x-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span className="font-semibold">{toastMessage}</span>
+          </div>
+          <button
+            onClick={() => setToastMessage(null)}
+            className="p-1 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 rounded-lg text-emerald-700 dark:text-emerald-300"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -235,6 +261,17 @@ export default function QuestionBankManager() {
         </div>
 
         <div className="flex items-center flex-wrap gap-2">
+          {/* Import via AI (.zip) Button */}
+          <button
+            id="banks-import-ai-btn"
+            onClick={() => setIsImportAiModalOpen(true)}
+            className="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-amber-500/15 to-orange-500/15 hover:from-amber-500/25 hover:to-orange-500/25 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/80 font-bold text-xs rounded-xl shadow-2xs transition-all active:scale-98"
+            title="Importar lote de questões a partir de arquivo .zip (.html ou .md) com Gemini AI"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>{t('gemini.importZipBtn')}</span>
+          </button>
+
           <button
             id="banks-create-bank-btn"
             onClick={openCreateBankModal}
@@ -271,6 +308,15 @@ export default function QuestionBankManager() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-2">
+            <button
+              id="banks-empty-import-ai-btn"
+              onClick={() => setIsImportAiModalOpen(true)}
+              className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-stone-900 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center space-x-1.5"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>{t('gemini.importZipBtn')}</span>
+            </button>
+
             <button
               id="banks-empty-add-btn"
               onClick={openCreateBankModal}
@@ -614,6 +660,16 @@ export default function QuestionBankManager() {
 
                           <div className="flex items-center space-x-1">
                             <button
+                              type="button"
+                              onClick={() => setGeminiModalQuestion(q)}
+                              className="px-2 py-1 text-stone-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 rounded-lg transition-colors flex items-center space-x-1 text-[11px] font-bold"
+                              title={t('gemini.askTutorTooltip')}
+                            >
+                              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                              <span className="hidden sm:inline">{t('gemini.askTutorBtn')}</span>
+                            </button>
+
+                            <button
                               id={`q-edit-btn-${q.id}`}
                               onClick={() => openEditQuestionModal(q)}
                               className="p-1.5 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/60 dark:hover:bg-stone-700 rounded-lg transition-colors"
@@ -840,6 +896,30 @@ export default function QuestionBankManager() {
           questionToEdit={editingQuestion}
           isOpen={isQuestionModalOpen}
           onClose={() => setIsQuestionModalOpen(false)}
+        />
+      )}
+
+      {/* Gemini Question Tutor Modal */}
+      {geminiModalQuestion && (
+        <GeminiQuestionModal
+          isOpen={Boolean(geminiModalQuestion)}
+          onClose={() => setGeminiModalQuestion(null)}
+          question={geminiModalQuestion}
+          certName={activeCert.name}
+        />
+      )}
+
+      {/* Gemini AI Batch Import Modal (.zip, .html, .md) */}
+      {isImportAiModalOpen && (
+        <ImportQuestionsAiModal
+          isOpen={isImportAiModalOpen}
+          onClose={() => setIsImportAiModalOpen(false)}
+          activeBankId={selectedBankId}
+          onSuccess={(targetBankId, count) => {
+            setSelectedBankId(targetBankId);
+            setToastMessage(`Importadas com sucesso ${count} questões no banco!`);
+            setTimeout(() => setToastMessage(null), 5000);
+          }}
         />
       )}
     </div>

@@ -16,6 +16,10 @@ export default function CertificationWorkspace() {
     setActiveExamAttempt,
     activeExamReviewAttempt,
     setActiveExamReviewAttempt,
+    activeInProgressSession,
+    setActiveInProgressSession,
+    saveInProgressSession,
+    deleteInProgressSession,
     addExamAttempt,
   } = useApp();
 
@@ -26,13 +30,24 @@ export default function CertificationWorkspace() {
     return (
       <ExamRunner
         config={activeExamAttempt}
+        initialSession={activeInProgressSession}
         onFinishExam={(attempt: ExamAttempt) => {
           const saved = addExamAttempt(attempt);
+          if (activeInProgressSession) {
+            deleteInProgressSession(activeInProgressSession.id);
+            setActiveInProgressSession(null);
+          }
           setActiveExamAttempt(null);
           setActiveExamReviewAttempt(saved);
         }}
+        onPauseExam={(session) => {
+          saveInProgressSession(session);
+          setActiveInProgressSession(null);
+          setActiveExamAttempt(null);
+        }}
         onExitExam={() => {
-          if (confirm('Exit exam? Progress on this uncompleted attempt will not be recorded.')) {
+          if (confirm('Deseja realmente sair? Para continuar depois, clique em Pausar na barra superior.')) {
+            setActiveInProgressSession(null);
             setActiveExamAttempt(null);
           }
         }}
@@ -58,6 +73,7 @@ export default function CertificationWorkspace() {
               useAccommodation: activeExamReviewAttempt.useAccommodation,
             };
             setActiveExamReviewAttempt(null);
+            setActiveInProgressSession(null);
             setActiveExamAttempt(lastConfig);
           }}
         />
@@ -75,7 +91,14 @@ export default function CertificationWorkspace() {
         {activeTab === 'questionBanks' && <QuestionBankManager />}
         {activeTab === 'mockExams' && (
           <MockExamConfig
-            onStartExam={(config) => setActiveExamAttempt(config)}
+            onStartExam={(config) => {
+              setActiveInProgressSession(null);
+              setActiveExamAttempt(config);
+            }}
+            onResumeSession={(session) => {
+              setActiveInProgressSession(session);
+              setActiveExamAttempt(session.config);
+            }}
             onReviewAttempt={(attempt) => setActiveExamReviewAttempt(attempt)}
           />
         )}

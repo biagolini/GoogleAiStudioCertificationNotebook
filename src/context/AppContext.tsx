@@ -7,6 +7,7 @@ import {
   ExamAttempt,
   UserSettings,
   MockExamConfigOptions,
+  InProgressExamSession,
   StudentProfile,
   CertificationStatus,
 } from '../types';
@@ -37,10 +38,19 @@ interface AppContextType {
   ) => void;
 
   // Active taking exam state
-  activeExamAttempt: ExamAttempt | null;
-  setActiveExamAttempt: (attempt: ExamAttempt | null) => void;
+  activeExamAttempt: MockExamConfigOptions | null;
+  setActiveExamAttempt: (attempt: MockExamConfigOptions | null) => void;
   activeExamReviewAttempt: ExamAttempt | null;
   setActiveExamReviewAttempt: (attempt: ExamAttempt | null) => void;
+  activeInProgressSession: InProgressExamSession | null;
+  setActiveInProgressSession: (session: InProgressExamSession | null) => void;
+
+  // In-Progress Sessions (Pause & Resume across exams)
+  inProgressSessions: InProgressExamSession[];
+  saveInProgressSession: (session: InProgressExamSession) => void;
+  deleteInProgressSession: (sessionId: string) => void;
+  getInProgressSessionsForActiveCert: () => InProgressExamSession[];
+  getAllInProgressSessions: () => InProgressExamSession[];
 
   // Settings
   settings: UserSettings;
@@ -80,13 +90,15 @@ interface AppContextType {
   getQuestionsForActiveCert: () => Question[];
   getQuestionsForBank: (bankId: string) => Question[];
   addQuestion: (q: Omit<Question, 'id' | 'createdAt' | 'updatedAt'>) => Question;
+  addQuestionsBulk: (questions: Omit<Question, 'id' | 'createdAt' | 'updatedAt'>[]) => Question[];
   updateQuestion: (id: string, updates: Partial<Question>) => void;
   deleteQuestion: (id: string) => void;
 
   // Exam Attempts CRUD
   examAttempts: ExamAttempt[];
   getAttemptsForActiveCert: () => ExamAttempt[];
-  saveExamAttempt: (attempt: ExamAttempt) => void;
+  saveExamAttempt: (attempt: ExamAttempt) => ExamAttempt;
+  addExamAttempt: (attempt: ExamAttempt) => ExamAttempt;
   deleteExamAttempt: (attemptId: string) => void;
 
   // Data helpers
@@ -106,6 +118,7 @@ const STORAGE_KEYS = {
   ACTIVE_CERT: 'certstudy_active_cert_v1',
   PROFILE: 'certstudy_student_profile_v1',
   VIEW: 'certstudy_current_view_v1',
+  IN_PROGRESS: 'certstudy_in_progress_sessions_v1',
 };
 
 const DEFAULT_SETTINGS: UserSettings = {
@@ -123,6 +136,7 @@ const DEFAULT_STUDENT_PROFILE: StudentProfile = {
   primaryFocus: ['cloud', 'devops'],
   targetProviderInterests: ['aws', 'kubernetes', 'terraform'],
   certStatuses: {},
+  nativeLanguage: 'pt-BR',
   updatedAt: Date.now(),
 };
 
@@ -214,6 +228,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [examAttempts, setExamAttempts] = useState<ExamAttempt[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.ATTEMPTS);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [];
+  });
+
+  const [inProgressSessions, setInProgressSessions] = useState<InProgressExamSession[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.IN_PROGRESS);
       if (saved) return JSON.parse(saved);
     } catch (e) {}
     return [];
@@ -335,8 +357,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 
   const [activeTab, setActiveTab] = useState<'notes' | 'questionBanks' | 'mockExams'>('notes');
-  const [activeExamAttempt, setActiveExamAttempt] = useState<ExamAttempt | null>(null);
+  const [activeExamAttempt, setActiveExamAttempt] = useState<MockExamConfigOptions | null>(null);
   const [activeExamReviewAttempt, setActiveExamReviewAttempt] = useState<ExamAttempt | null>(null);
+  const [activeInProgressSession, setActiveInProgressSession] = useState<InProgressExamSession | null>(null);
 
   // Derive active certification object
   const activeCert = certifications.find((c) => c.id === activeCertId) || null;
@@ -528,6 +551,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return newQ;
   }, [questions, touchCertificationStudyTime]);
 
+  const addQuestionsBulk = useCallback((qList: Omit<Question, 'id' | 'createdAt' | 'updatedAt'>[]): Question[] => {
+    const timestamp = Date.now();
+    const created: Question[] = qList.map((q, idx) => ({
+      ...q,
+      id: `q-${timestamp}-${idx}-${Math.random().toString(36).substr(2, 5)}`,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }));
+    persistQuestions([...questions, ...created]);
+    if (qList.length > 0 && qList[0].certId) {
+      touchCertificationStudyTime(qList[0].certId);
+    }
+    return created;
+  }, [questions, touchCertificationStudyTime]);
+
   const updateQuestion = useCallback((id: string, updates: Partial<Question>) => {
     const updated = questions.map((q) => (q.id === id ? { ...q, ...updates, updatedAt: Date.now() } : q));
     persistQuestions(updated);
@@ -545,7 +583,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return examAttempts.filter((a) => a.certId === activeCertId).sort((a, b) => b.date - a.date);
   }, [examAttempts, activeCertId]);
 
-  const saveExamAttempt = useCallback((attempt: ExamAttempt) => {
+  const saveExamAttempt = useCallback((attempt: ExamAttempt): ExamAttempt => {
     const existingIndex = examAttempts.findIndex((a) => a.id === attempt.id);
     let updated: ExamAttempt[];
     if (existingIndex >= 0) {
@@ -556,11 +594,61 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     persistExamAttempts(updated);
     if (attempt.certId) touchCertificationStudyTime(attempt.certId);
+    return attempt;
   }, [examAttempts, touchCertificationStudyTime]);
+
+  const addExamAttempt = saveExamAttempt;
 
   const deleteExamAttempt = useCallback((attemptId: string) => {
     persistExamAttempts(examAttempts.filter((a) => a.id !== attemptId));
   }, [examAttempts]);
+
+  // In-Progress Sessions operations
+  const persistInProgressSessions = useCallback((sessions: InProgressExamSession[]) => {
+    setInProgressSessions(sessions);
+    try {
+      localStorage.setItem(STORAGE_KEYS.IN_PROGRESS, JSON.stringify(sessions));
+    } catch (e) {}
+    triggerSyncIndicator();
+  }, [triggerSyncIndicator]);
+
+  const saveInProgressSession = useCallback((session: InProgressExamSession) => {
+    setInProgressSessions((prev) => {
+      const existingIndex = prev.findIndex((s) => s.id === session.id);
+      let updated: InProgressExamSession[];
+      if (existingIndex >= 0) {
+        updated = [...prev];
+        updated[existingIndex] = session;
+      } else {
+        updated = [session, ...prev];
+      }
+      try {
+        localStorage.setItem(STORAGE_KEYS.IN_PROGRESS, JSON.stringify(updated));
+      } catch (e) {}
+      triggerSyncIndicator();
+      return updated;
+    });
+  }, [triggerSyncIndicator]);
+
+  const deleteInProgressSession = useCallback((sessionId: string) => {
+    setInProgressSessions((prev) => {
+      const updated = prev.filter((s) => s.id !== sessionId);
+      try {
+        localStorage.setItem(STORAGE_KEYS.IN_PROGRESS, JSON.stringify(updated));
+      } catch (e) {}
+      triggerSyncIndicator();
+      return updated;
+    });
+  }, [triggerSyncIndicator]);
+
+  const getInProgressSessionsForActiveCert = useCallback(() => {
+    if (!activeCertId) return [];
+    return inProgressSessions.filter((s) => s.certId === activeCertId);
+  }, [inProgressSessions, activeCertId]);
+
+  const getAllInProgressSessions = useCallback(() => {
+    return inProgressSessions;
+  }, [inProgressSessions]);
 
   // Loader for starter kit demo
   const loadSampleStarterKit = useCallback(() => {
@@ -649,6 +737,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setActiveExamAttempt,
         activeExamReviewAttempt,
         setActiveExamReviewAttempt,
+        activeInProgressSession,
+        setActiveInProgressSession,
+        inProgressSessions,
+        saveInProgressSession,
+        deleteInProgressSession,
+        getInProgressSessionsForActiveCert,
+        getAllInProgressSessions,
         settings,
         updateSettings,
         toggleTheme,
@@ -673,11 +768,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         getQuestionsForActiveCert,
         getQuestionsForBank,
         addQuestion,
+        addQuestionsBulk,
         updateQuestion,
         deleteQuestion,
         examAttempts,
         getAttemptsForActiveCert,
         saveExamAttempt,
+        addExamAttempt,
         deleteExamAttempt,
         loadSampleStarterKit,
         resetAllData,

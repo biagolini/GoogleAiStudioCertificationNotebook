@@ -26,7 +26,9 @@ import {
   FileText,
   ExternalLink,
   RefreshCw,
+  Sparkles,
 } from 'lucide-react';
+import NoteGeminiCopilot from './NoteGeminiCopilot';
 
 interface NoteEditorProps {
   note: Note;
@@ -34,7 +36,7 @@ interface NoteEditorProps {
 }
 
 export default function NoteEditor({ note, onBack }: NoteEditorProps) {
-  const { updateNote, deleteNote, isSyncing, lastSyncedTimestamp } = useApp();
+  const { activeCert, updateNote, deleteNote, isSyncing, lastSyncedTimestamp } = useApp();
   const { state: gState, syncNoteToDocs } = useGoogleWorkspace();
   const { t } = useTranslation();
 
@@ -44,6 +46,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isDocsSyncing, setIsDocsSyncing] = useState(false);
   const [docsSyncSuccess, setDocsSyncSuccess] = useState(false);
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -195,7 +198,7 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6 animate-in fade-in duration-150">
+    <div className={`${isCopilotOpen ? 'max-w-7xl' : 'max-w-5xl'} mx-auto px-4 sm:px-6 py-6 space-y-6 animate-in fade-in duration-150 transition-all`}>
       {/* Editor Header Navigation */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-stone-200 dark:border-stone-800">
         <div className="flex items-center space-x-3">
@@ -250,6 +253,21 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
           </button>
 
           <button
+            id="note-copilot-toggle-btn"
+            type="button"
+            onClick={() => setIsCopilotOpen(!isCopilotOpen)}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all shadow-2xs ${
+              isCopilotOpen
+                ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 ring-2 ring-amber-500/20'
+                : 'border-stone-200 dark:border-stone-800 hover:border-amber-500/80 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300'
+            }`}
+            title="Abrir Copiloto Gemini ao lado da nota"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>{t('gemini.copilotBtn')}</span>
+          </button>
+
+          <button
             id="note-preview-toggle-btn"
             type="button"
             onClick={() => setIsPreviewMode(!isPreviewMode)}
@@ -280,147 +298,172 @@ export default function NoteEditor({ note, onBack }: NoteEditorProps) {
         </div>
       </div>
 
-      {/* Title & Tags Input */}
-      <div className="space-y-3">
-        <input
-          id="note-title-input"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder={t('notes.noteTitlePlaceholder')}
-          className="w-full text-2xl sm:text-3xl font-extrabold text-stone-900 dark:text-white bg-transparent border-none focus:outline-none placeholder:text-stone-300 dark:placeholder:text-stone-700"
-        />
+      {/* Main Workspace (Editor Canvas + Gemini Copilot Side-by-Side) */}
+      <div className={`grid gap-6 items-start ${isCopilotOpen ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1'}`}>
+        <div className={`space-y-4 ${isCopilotOpen ? 'lg:col-span-7 xl:col-span-8' : 'w-full'}`}>
+          {/* Title & Tags Input */}
+          <div className="space-y-3">
+            <input
+              id="note-title-input"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={t('notes.noteTitlePlaceholder')}
+              className="w-full text-2xl sm:text-3xl font-extrabold text-stone-900 dark:text-white bg-transparent border-none focus:outline-none placeholder:text-stone-300 dark:placeholder:text-stone-700"
+            />
 
-        <div className="flex items-center space-x-2">
-          <Tag className="w-3.5 h-3.5 text-stone-400 shrink-0" />
-          <input
-            id="note-tags-input"
-            type="text"
-            value={tagsInput}
-            onChange={(e) => setTagsInput(e.target.value)}
-            placeholder={t('notes.tagsPlaceholder')}
-            className="w-full text-xs text-stone-600 dark:text-stone-400 bg-transparent border-b border-dashed border-stone-200 dark:border-stone-800 pb-1 focus:outline-none focus:border-amber-500 placeholder:text-stone-400"
-          />
-        </div>
-      </div>
+            <div className="flex items-center space-x-2">
+              <Tag className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+              <input
+                id="note-tags-input"
+                type="text"
+                value={tagsInput}
+                onChange={(e) => setTagsInput(e.target.value)}
+                placeholder={t('notes.tagsPlaceholder')}
+                className="w-full text-xs text-stone-600 dark:text-stone-400 bg-transparent border-b border-dashed border-stone-200 dark:border-stone-800 pb-1 focus:outline-none focus:border-amber-500 placeholder:text-stone-400"
+              />
+            </div>
+          </div>
 
-      {/* Rich Markdown Action Toolbar */}
-      {!isPreviewMode && (
-        <div className="flex flex-wrap items-center gap-1 p-1.5 bg-stone-100/90 dark:bg-stone-900/90 border border-stone-200 dark:border-stone-800 rounded-xl backdrop-blur-xs">
-          <button
-            type="button"
-            onClick={() => applyFormat('**', '**')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
-            title={t('notes.formatBold')}
-          >
-            <Bold className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => applyFormat('*', '*')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
-            title={t('notes.formatItalic')}
-          >
-            <Italic className="w-3.5 h-3.5" />
-          </button>
-          <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
-          <button
-            type="button"
-            onClick={() => applyBlockFormat('#')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold flex items-center"
-            title="Heading 1"
-          >
-            <Heading1 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => applyBlockFormat('##')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold flex items-center"
-            title="Heading 2"
-          >
-            <Heading2 className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => applyBlockFormat('###')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold flex items-center"
-            title="Heading 3"
-          >
-            <Heading3 className="w-3.5 h-3.5" />
-          </button>
-          <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
-          <button
-            type="button"
-            onClick={() => applyBlockFormat('-')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
-            title={t('notes.formatList')}
-          >
-            <List className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => applyBlockFormat('1.')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
-            title={t('notes.formatNumbered')}
-          >
-            <ListOrdered className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => applyBlockFormat('- [ ]')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
-            title={t('notes.formatTask')}
-          >
-            <CheckSquare className="w-3.5 h-3.5" />
-          </button>
-          <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
-          <button
-            type="button"
-            onClick={() => applyBlockFormat('>')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
-            title={t('notes.formatQuote')}
-          >
-            <Quote className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => applyFormat('```\n', '\n```')}
-            className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-mono font-bold"
-            title={t('notes.formatCode')}
-          >
-            <Code className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => applyBlockFormat('> **Key Exam Takeaway**:')}
-            className="px-2 py-1 text-amber-700 dark:text-amber-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold flex items-center space-x-1"
-            title={t('notes.formatCallout')}
-          >
-            <AlertCircle className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Key Takeaway</span>
-          </button>
-        </div>
-      )}
+          {/* Rich Markdown Action Toolbar */}
+          {!isPreviewMode && (
+            <div className="flex flex-wrap items-center gap-1 p-1.5 bg-stone-100/90 dark:bg-stone-900/90 border border-stone-200 dark:border-stone-800 rounded-xl backdrop-blur-xs">
+              <button
+                type="button"
+                onClick={() => applyFormat('**', '**')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
+                title={t('notes.formatBold')}
+              >
+                <Bold className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => applyFormat('*', '*')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
+                title={t('notes.formatItalic')}
+              >
+                <Italic className="w-3.5 h-3.5" />
+              </button>
+              <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
+              <button
+                type="button"
+                onClick={() => applyBlockFormat('#')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold flex items-center"
+                title="Heading 1"
+              >
+                <Heading1 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => applyBlockFormat('##')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold flex items-center"
+                title="Heading 2"
+              >
+                <Heading2 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => applyBlockFormat('###')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold flex items-center"
+                title="Heading 3"
+              >
+                <Heading3 className="w-3.5 h-3.5" />
+              </button>
+              <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
+              <button
+                type="button"
+                onClick={() => applyBlockFormat('-')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
+                title={t('notes.formatList')}
+              >
+                <List className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => applyBlockFormat('1.')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
+                title={t('notes.formatNumbered')}
+              >
+                <ListOrdered className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => applyBlockFormat('- [ ]')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
+                title={t('notes.formatTask')}
+              >
+                <CheckSquare className="w-3.5 h-3.5" />
+              </button>
+              <div className="w-px h-4 bg-stone-300 dark:bg-stone-700 mx-1" />
+              <button
+                type="button"
+                onClick={() => applyBlockFormat('>')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold"
+                title={t('notes.formatQuote')}
+              >
+                <Quote className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => applyFormat('```\n', '\n```')}
+                className="p-1.5 text-stone-700 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-mono font-bold"
+                title={t('notes.formatCode')}
+              >
+                <Code className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => applyBlockFormat('> **Key Exam Takeaway**:')}
+                className="px-2 py-1 text-amber-700 dark:text-amber-300 hover:bg-white dark:hover:bg-stone-800 rounded-lg text-xs font-bold flex items-center space-x-1"
+                title={t('notes.formatCallout')}
+              >
+                <AlertCircle className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Key Takeaway</span>
+              </button>
+            </div>
+          )}
 
-      {/* Editor Main Canvas / Preview */}
-      <div className="min-h-[450px] p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs transition-colors">
-        {isPreviewMode ? (
-          <div className="prose dark:prose-invert max-w-none space-y-2">
-            {content.trim() ? (
-              renderSimpleMarkdown(content)
+          {/* Editor Main Canvas / Preview */}
+          <div className="min-h-[480px] p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs transition-colors">
+            {isPreviewMode ? (
+              <div className="prose dark:prose-invert max-w-none space-y-2">
+                {content.trim() ? (
+                  renderSimpleMarkdown(content)
+                ) : (
+                  <p className="text-stone-400 italic text-sm">Note content is empty.</p>
+                )}
+              </div>
             ) : (
-              <p className="text-stone-400 italic text-sm">Note content is empty.</p>
+              <textarea
+                ref={textareaRef}
+                id="note-content-editor"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Start writing notes, architecture summaries, cheat codes, or exam tips..."
+                className="w-full h-full min-h-[450px] bg-transparent border-none focus:outline-none text-stone-900 dark:text-stone-100 text-sm leading-relaxed font-mono resize-none"
+              />
             )}
           </div>
-        ) : (
-          <textarea
-            ref={textareaRef}
-            id="note-content-editor"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Start writing notes, architecture summaries, cheat codes, or exam tips..."
-            className="w-full h-full min-h-[420px] bg-transparent border-none focus:outline-none text-stone-900 dark:text-stone-100 text-sm leading-relaxed font-mono resize-none"
-          />
+        </div>
+
+        {/* Gemini Copilot Side Panel */}
+        {isCopilotOpen && (
+          <div className="lg:col-span-5 xl:col-span-4 sticky top-6 h-[720px] max-h-[85vh]">
+            <NoteGeminiCopilot
+              isOpen={isCopilotOpen}
+              onClose={() => setIsCopilotOpen(false)}
+              noteTitle={title}
+              noteContent={content}
+              certName={activeCert?.name}
+              onApplyMarkdown={(newMarkdown, mode) => {
+                if (mode === 'replace') {
+                  setContent(newMarkdown);
+                } else {
+                  setContent((prev) => (prev.trim() ? `${prev}\n\n${newMarkdown}` : newMarkdown));
+                }
+              }}
+            />
+          </div>
         )}
       </div>
     </div>
