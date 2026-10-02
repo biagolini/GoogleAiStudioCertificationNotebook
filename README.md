@@ -170,6 +170,24 @@ For detailed setup instructions, refer to:
 
 ---
 
+## Google Gemini AI Key & Billing Configuration
+
+CertStudy uses a client-side **Bring Your Own Key (BYOK)** model for its AI features (Exam Question Tutor, Study Notes Copilot, and Question Document Parsing):
+
+1. **Obtain an API Key**: Generate a free API key from [Google AI Studio](https://aistudio.google.com/apikey).
+2. **Enter in Settings**: Paste your key into the application preferences dialog (**Settings > Google Gemini AI**). The key is stored solely in your local browser sandbox (`localStorage`).
+3. **Free Tier vs. Paid Pay-As-You-Go**:
+   - **Free Tier (Default)**: Free of charge, but requests share public global capacity pools. During high-demand periods, Google's public endpoints may return temporary HTTP 503 (`UNAVAILABLE: This model is currently experiencing high demand`). The application automatically attempts fallback models and preserves your key.
+   - **Paid Tier (Optional Pay-As-You-Go)**: Users can link a Google Cloud billing account to their project in Google AI Studio to unlock dedicated Tier 1 throughput with zero 503 drops and higher rate limits.
+4. **Billing Disclaimer & Cost Responsibility**:
+   - Any cost incurred from using a paid API key is billed **directly by Google Cloud to the user's personal Google Cloud billing account**.
+   - CertStudy does not charge, collect, broker, or subsidize API usage fees.
+   - For typical study use with Gemini Flash models, monthly costs are nominal (usually under $1.00 USD). Users can configure hard spending caps and daily quotas in Google Cloud Console.
+
+For complete technical specifications, see [`docs/architecture/backend/google-gemini-api.md`](docs/architecture/backend/google-gemini-api.md).
+
+---
+
 ## Project Structure
 
 ```text

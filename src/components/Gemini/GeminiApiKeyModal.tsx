@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { geminiService } from '../../services/geminiService';
+import { geminiService, GeminiTestConnectionResult } from '../../services/geminiService';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { Key, Sparkles, ExternalLink, CheckCircle2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 
@@ -10,11 +10,11 @@ interface GeminiApiKeyModalProps {
 }
 
 export default function GeminiApiKeyModal({ isOpen, onClose, onSaved }: GeminiApiKeyModalProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [apiKeyInput, setApiKeyInput] = useState(() => geminiService.getApiKey());
   const [showKey, setShowKey] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{ success: boolean; message?: string } | null>(null);
+  const [testResult, setTestResult] = useState<GeminiTestConnectionResult | null>(null);
 
   if (!isOpen) return null;
 
@@ -30,16 +30,18 @@ export default function GeminiApiKeyModal({ isOpen, onClose, onSaved }: GeminiAp
 
     setIsTesting(true);
     setTestResult(null);
-    const res = await geminiService.testConnection(apiKeyInput.trim());
+    const res = await geminiService.testConnection(apiKeyInput.trim(), language);
     setIsTesting(false);
     setTestResult(res);
 
-    if (res.success) {
+    if (res.success || res.diagnostics?.isKeyValidAndSaved) {
       geminiService.setApiKey(apiKeyInput.trim());
       if (onSaved) onSaved();
-      setTimeout(() => {
-        onClose();
-      }, 1200);
+      if (res.success) {
+        setTimeout(() => {
+          onClose();
+        }, 1200);
+      }
     }
   };
 
@@ -132,25 +134,45 @@ export default function GeminiApiKeyModal({ isOpen, onClose, onSaved }: GeminiAp
 
           {/* Test Status Feedback */}
           {testResult && (
-            <div
-              className={`p-3 rounded-xl border text-xs flex items-center space-x-2 ${
-                testResult.success
-                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200'
-                  : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 text-rose-800 dark:text-rose-200'
-              }`}
-            >
+            <div className="space-y-2">
               {testResult.success ? (
-                <>
+                <div className="p-3 rounded-xl border text-xs flex items-center space-x-2 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{t('gemini.connectionSuccess')}</span>
-                </>
+                </div>
               ) : (
-                <>
-                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-                  <span className="truncate">
-                    {t('gemini.connectionFailed')}: {testResult.message}
-                  </span>
-                </>
+                <div className="space-y-2">
+                  <div className="p-3 rounded-xl border bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 text-rose-800 dark:text-rose-200 text-xs space-y-1.5">
+                    <div className="flex items-center space-x-1.5 font-semibold">
+                      <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                      <span>{t('gemini.connectionFailed')}</span>
+                    </div>
+                    <pre className="font-mono text-[10px] bg-stone-900 text-stone-200 dark:bg-black p-2 rounded-lg overflow-x-auto whitespace-pre-wrap max-h-24 border border-stone-800">
+                      {testResult.message}
+                    </pre>
+                  </div>
+
+                  {testResult.diagnostics && (
+                    <div className="p-3 rounded-xl border border-amber-300 dark:border-amber-700/80 bg-amber-50/90 dark:bg-amber-950/40 text-xs space-y-1.5 text-amber-950 dark:text-amber-200">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="font-bold flex items-center space-x-1.5 text-amber-900 dark:text-amber-300 text-[11px]">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                          <span>{testResult.diagnostics.headline}</span>
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-200 dark:bg-amber-900/80 text-amber-900 dark:text-amber-200 shrink-0">
+                          {testResult.diagnostics.badge}
+                        </span>
+                      </div>
+                      <p className="text-[11px] leading-relaxed text-stone-700 dark:text-stone-300">
+                        {testResult.diagnostics.explanation}
+                      </p>
+                      <div className="pt-1 border-t border-amber-200/80 dark:border-amber-800/60 text-[10px] text-amber-900 dark:text-amber-300">
+                        <span className="font-bold">{language.startsWith('pt') ? 'Ação recomendada:' : 'Recommended action:'}</span>{' '}
+                        {testResult.diagnostics.actionableTip}
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}

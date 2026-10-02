@@ -3,6 +3,23 @@ import { Question } from '../types';
 
 const STORAGE_KEY_GEMINI_API_KEY = 'certstudy_gemini_api_key_v1';
 
+export interface GeminiDiagnosticInfo {
+  isKnownPattern: boolean;
+  type: 'high_demand_503' | 'rate_limit_429' | 'invalid_key_400' | 'forbidden_403' | 'unknown';
+  badge: string;
+  headline: string;
+  explanation: string;
+  actionableTip: string;
+  rawJson?: string;
+  isKeyValidAndSaved?: boolean;
+}
+
+export interface GeminiTestConnectionResult {
+  success: boolean;
+  message?: string;
+  diagnostics?: GeminiDiagnosticInfo;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'model';
@@ -56,21 +73,243 @@ class GeminiService {
     return new GoogleGenAI({ apiKey: key });
   }
 
-  public async testConnection(keyOverride?: string): Promise<{ success: boolean; message?: string }> {
+  private isHighDemandError(err: any): boolean {
+    const str = String(err?.message || err || '');
+    return (
+      str.includes('503') ||
+      str.includes('high demand') ||
+      str.includes('UNAVAILABLE') ||
+      err?.status === 503 ||
+      err?.code === 503
+    );
+  }
+
+  private isKeyInvalidError(err: any): boolean {
+    const str = String(err?.message || err || '');
+    return (
+      str.includes('API_KEY_INVALID') ||
+      (str.includes('400') && str.includes('API key')) ||
+      str.includes('403')
+    );
+  }
+
+  public cleanErrorMessage(err: any, isPt: boolean = true): string {
+    const diag = this.parseErrorDiagnostics(err, isPt);
+    return diag.headline + ': ' + diag.explanation;
+  }
+
+  public parseErrorDiagnostics(err: any, isPt: boolean = true): GeminiDiagnosticInfo {
+    const rawStr = String(err?.message || err || '');
+    let rawJson: string | undefined;
+    let errorCode: number | undefined;
+    let errorStatus: string | undefined;
+
     try {
-      const client = this.getClient(keyOverride);
-      const res = await client.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: 'Hello! Respond with: OK',
-      });
-      if (res && res.text) {
-        return { success: true };
+      const match = rawStr.match(/\{[\s\S]*\}/);
+      if (match) {
+        const parsed = JSON.parse(match[0]);
+        if (parsed?.error) {
+          rawJson = JSON.stringify(parsed, null, 2);
+          errorCode = parsed.error.code;
+          errorStatus = parsed.error.status;
+        }
       }
-      return { success: false, message: 'No response from model' };
-    } catch (err: any) {
-      const msg = err?.message || String(err);
-      return { success: false, message: msg };
+    } catch {
+      // not json
     }
+
+    const has503 =
+      errorCode === 503 ||
+      errorStatus === 'UNAVAILABLE' ||
+      rawStr.includes('503') ||
+      rawStr.toLowerCase().includes('high demand') ||
+      rawStr.includes('UNAVAILABLE');
+
+    const has429 =
+      errorCode === 429 ||
+      errorStatus === 'RESOURCE_EXHAUSTED' ||
+      rawStr.includes('429') ||
+      rawStr.toLowerCase().includes('quota') ||
+      rawStr.includes('RESOURCE_EXHAUSTED');
+
+    const has400 =
+      errorCode === 400 ||
+      rawStr.includes('API_KEY_INVALID') ||
+      (rawStr.includes('400') && rawStr.toLowerCase().includes('api key'));
+
+    const has403 =
+      errorCode === 403 ||
+      errorStatus === 'PERMISSION_DENIED' ||
+      rawStr.includes('403') ||
+      rawStr.includes('PERMISSION_DENIED');
+
+    if (has503) {
+      return {
+        isKnownPattern: true,
+        type: 'high_demand_503',
+        badge: 'HTTP 503 · UNAVAILABLE',
+        headline: isPt
+          ? 'Servidores do Google com Alta Demanda Temporária (Free Tier)'
+          : 'Google Servers Experiencing Temporary High Demand (Free Tier)',
+        explanation: isPt
+          ? 'Sua chave de API é autêntica e foi validada com sucesso pelo Google! No entanto, os servidores da API pública gratuita (Free Tier) estão temporariamente no limite de capacidade compartilhada para este modelo.'
+          : 'Your API key is authentic and was successfully validated by Google! However, Google\'s shared public free-tier servers are currently at capacity for this model.',
+        actionableTip: isPt
+          ? 'Picos de demanda costumam ser temporários. Aguarde alguns instantes e tente novamente. O aplicativo salvou sua chave localmente. Caso queira cota garantida e sem filas, você pode opcionalmente ativar o faturamento (Pay-as-you-go) no console do Google AI Studio (custo cobrado separadamente pelo Google Cloud).'
+          : 'Demand spikes are usually temporary. Wait a few moments and try again. The application has saved your key locally. To get guaranteed throughput without queues, you can optionally enable Pay-as-you-go billing in Google AI Studio (billed separately by Google Cloud).',
+        rawJson: rawJson || rawStr,
+        isKeyValidAndSaved: true,
+      };
+    }
+
+    if (has429) {
+      return {
+        isKnownPattern: true,
+        type: 'rate_limit_429',
+        badge: 'HTTP 429 · RATE LIMIT',
+        headline: isPt
+          ? 'Limite de Requisições Atingido (Rate Limit)'
+          : 'Request Rate Limit Exceeded (Rate Limit)',
+        explanation: isPt
+          ? 'A cota gratuita do Google AI Studio impõe um limite estrito de requisições por minuto (RPM) e por dia.'
+          : 'Google AI Studio free tier enforces strict limits on requests per minute (RPM) and requests per day.',
+        actionableTip: isPt
+          ? 'Aguarde de 1 a 2 minutos para que a janela de requisições seja reiniciada antes de tentar novamente.'
+          : 'Wait 1 to 2 minutes for your request quota window to reset before trying again.',
+        rawJson: rawJson || rawStr,
+        isKeyValidAndSaved: true,
+      };
+    }
+
+    if (has400) {
+      return {
+        isKnownPattern: true,
+        type: 'invalid_key_400',
+        badge: 'HTTP 400 · API_KEY_INVALID',
+        headline: isPt ? 'Chave de API Inválida' : 'Invalid API Key',
+        explanation: isPt
+          ? 'O Google não reconheceu a chave de API digitada. Ela pode estar incompleta ou conter caracteres incorretos.'
+          : 'Google did not recognize the provided API key. It may be truncated or contain invalid characters.',
+        actionableTip: isPt
+          ? 'Acesse https://aistudio.google.com/u/0/api-keys, copie sua chave novamente e cole no campo de configuração.'
+          : 'Visit https://aistudio.google.com/u/0/api-keys, copy your key again, and paste it into the configuration field.',
+        rawJson: rawJson || rawStr,
+        isKeyValidAndSaved: false,
+      };
+    }
+
+    if (has403) {
+      return {
+        isKnownPattern: true,
+        type: 'forbidden_403',
+        badge: 'HTTP 403 · PERMISSION_DENIED',
+        headline: isPt ? 'Permissão Negada' : 'Permission Denied',
+        explanation: isPt
+          ? 'A chave existe no Google Cloud, mas possui restrições de IP/origem ou o projeto correspondente foi suspenso.'
+          : 'The API key exists in Google Cloud but has IP/origin restrictions or the associated project is suspended.',
+        actionableTip: isPt
+          ? 'Acesse o Google Cloud Console > APIs & Services > Credentials e verifique as restrições da sua chave.'
+          : 'Visit Google Cloud Console > APIs & Services > Credentials and inspect key restrictions.',
+        rawJson: rawJson || rawStr,
+        isKeyValidAndSaved: false,
+      };
+    }
+
+    return {
+      isKnownPattern: false,
+      type: 'unknown',
+      badge: 'ERROR',
+      headline: isPt ? 'Falha na Chamada da API' : 'API Request Failure',
+      explanation: rawStr,
+      actionableTip: isPt
+        ? 'Verifique sua conexão de rede ou tente novamente em alguns instantes.'
+        : 'Check your network connection or try again in a few moments.',
+      rawJson: rawJson || rawStr,
+      isKeyValidAndSaved: false,
+    };
+  }
+
+  /**
+   * Resilient content generation with automatic retries and model fallback across valid Flash models.
+   */
+  private async generateWithFallback(
+    client: GoogleGenAI,
+    options: {
+      contents: any;
+      config?: any;
+    }
+  ): Promise<any> {
+    const candidateModels = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+    let lastError: any = null;
+
+    for (let i = 0; i < candidateModels.length; i++) {
+      const model = candidateModels[i];
+      try {
+        const res = await client.models.generateContent({
+          model,
+          contents: options.contents,
+          config: options.config,
+        });
+        return res;
+      } catch (err: any) {
+        lastError = err;
+        if (this.isHighDemandError(err)) {
+          console.warn(`[GeminiService] Model ${model} returned 503 (high demand). Trying fallback model...`);
+          // Brief pause before trying fallback model
+          await new Promise((r) => setTimeout(r, 600));
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw lastError;
+  }
+
+  public async testConnection(
+    keyOverride?: string,
+    language: string = 'pt-BR'
+  ): Promise<GeminiTestConnectionResult> {
+    const isPt = language.startsWith('pt');
+    const key = keyOverride?.trim() || this.getApiKey();
+    if (!key) {
+      return {
+        success: false,
+        message: isPt ? 'Nenhuma chave informada' : 'No API key provided',
+      };
+    }
+
+    const candidateModels = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+    let lastError: any = null;
+
+    for (const model of candidateModels) {
+      try {
+        const client = this.getClient(key);
+        const res = await client.models.generateContent({
+          model,
+          contents: 'Hello! Respond with: OK',
+        });
+        if (res && res.text) {
+          return { success: true };
+        }
+      } catch (err: any) {
+        lastError = err;
+        if (this.isHighDemandError(err)) {
+          await new Promise((r) => setTimeout(r, 400));
+          continue;
+        } else {
+          break;
+        }
+      }
+    }
+
+    const rawErrorStr = lastError?.message || String(lastError || 'Unknown error');
+    const diagnostics = this.parseErrorDiagnostics(lastError, isPt);
+
+    return {
+      success: false,
+      message: rawErrorStr,
+      diagnostics,
+    };
   }
 
   /**
@@ -164,8 +403,7 @@ Guidelines:
       });
     }
 
-    const response = await client.models.generateContent({
-      model: 'gemini-3.8-flash',
+    const response = await this.generateWithFallback(client, {
       contents,
       config: {
         systemInstruction,
@@ -282,8 +520,7 @@ ${actionPrompt}`;
       });
     }
 
-    const res = await client.models.generateContent({
-      model: 'gemini-3.8-flash',
+    const res = await this.generateWithFallback(client, {
       contents,
       config: {
         systemInstruction,
@@ -378,8 +615,7 @@ CRITICAL RULES:
 
       const prompt = `Please parse the following certification exam document segment (Part ${chunkIndex + 1} of ${totalChunks}):\n\n${textChunk}`;
 
-      const res = await client.models.generateContent({
-        model: 'gemini-3.8-flash',
+      const res = await this.generateWithFallback(client, {
         contents: prompt,
         config: {
           systemInstruction,
@@ -541,8 +777,7 @@ Return ONLY a valid JSON object matching this structure:
   "explanation": "translated general explanation"
 }`;
 
-    const res = await client.models.generateContent({
-      model: 'gemini-3.8-flash',
+    const res = await this.generateWithFallback(client, {
       contents: JSON.stringify(payloadToTranslate),
       config: {
         systemInstruction,

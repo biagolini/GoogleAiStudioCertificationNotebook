@@ -58,7 +58,7 @@ All architectural subsystems are documented in discrete technical Markdown files
 - **`docs/architecture/backend/google-docs-api.md`**
   Covers the Google Docs API v1 integration, OAuth scopes (`documents`), structural element batch injection, and formatted study note synchronization.
 - **`docs/architecture/backend/google-gemini-api.md`**
-  Covers the Google Gemini API integration using `@google/genai`, model selection (`gemini-3.8-flash`), prompt construction, and structured JSON output for AI tutoring and question extraction.
+  Covers the Google Gemini API integration using `@google/genai`, model selection (`gemini-3.8-flash`), prompt construction, structured JSON output for AI tutoring and question extraction, free-tier vs. paid (Pay-As-You-Go) API keys, independent user billing responsibility, HTTP 503 high-demand resilience fallbacks, and error diagnostics.
 
 ---
 

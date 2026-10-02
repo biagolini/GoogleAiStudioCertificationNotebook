@@ -13,6 +13,7 @@ import {
   BookOpen,
   ArrowRight,
   RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 import GeminiApiKeyModal from './GeminiApiKeyModal';
 
@@ -279,19 +280,52 @@ export default function GeminiQuestionModal({
                   </div>
                 )}
 
-                {errorMsg && (
-                  <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700 text-rose-800 dark:text-rose-200 text-xs flex items-center justify-between">
-                    <span>{errorMsg}</span>
-                    <button
-                      type="button"
-                      onClick={handleInitialExplanation}
-                      className="p-1 hover:bg-rose-100 rounded text-rose-700 flex items-center space-x-1 font-bold"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      <span>{t('common.retry')}</span>
-                    </button>
-                  </div>
-                )}
+                {errorMsg && (() => {
+                  const diag = geminiService.parseErrorDiagnostics(errorMsg, language.startsWith('pt'));
+                  return (
+                    <div className="space-y-2">
+                      <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-700 text-rose-800 dark:text-rose-200 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold flex items-center space-x-1.5">
+                            <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                            <span>{t('gemini.connectionFailed')}</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={handleInitialExplanation}
+                            className="px-2 py-0.5 hover:bg-rose-200 dark:hover:bg-rose-900/60 rounded text-rose-700 dark:text-rose-200 flex items-center space-x-1 font-bold text-[11px]"
+                          >
+                            <RefreshCw className="w-3 h-3" />
+                            <span>{t('common.retry')}</span>
+                          </button>
+                        </div>
+                        <pre className="font-mono text-[10px] bg-stone-900 text-stone-200 dark:bg-black p-2 rounded-lg overflow-x-auto whitespace-pre-wrap max-h-24 border border-stone-800">
+                          {errorMsg}
+                        </pre>
+                      </div>
+
+                      {diag.isKnownPattern && (
+                        <div className="p-3 rounded-xl border border-amber-300 dark:border-amber-700/80 bg-amber-50/90 dark:bg-amber-950/40 text-xs space-y-1 text-amber-950 dark:text-amber-200">
+                          <div className="flex items-center justify-between gap-1.5">
+                            <span className="font-bold flex items-center space-x-1.5 text-amber-900 dark:text-amber-300 text-[11px]">
+                              <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                              <span>{diag.headline}</span>
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-200 dark:bg-amber-900/80 text-amber-900 dark:text-amber-200 shrink-0">
+                              {diag.badge}
+                            </span>
+                          </div>
+                          <p className="text-[11px] leading-relaxed text-stone-700 dark:text-stone-300">
+                            {diag.explanation}
+                          </p>
+                          <p className="text-[10px] text-amber-900 dark:text-amber-300 pt-1 border-t border-amber-200/80 dark:border-amber-800/60">
+                            <strong>{language.startsWith('pt') ? 'Dica:' : 'Tip:'}</strong> {diag.actionableTip}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 <div ref={chatBottomRef} />
               </div>

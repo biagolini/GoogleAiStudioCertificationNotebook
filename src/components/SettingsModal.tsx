@@ -29,7 +29,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { LanguageCode } from '../i18n/translations';
-import { geminiService } from '../services/geminiService';
+import { geminiService, GeminiTestConnectionResult } from '../services/geminiService';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -62,7 +62,7 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [geminiApiKeyInput, setGeminiApiKeyInput] = useState(() => geminiService.getApiKey());
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [isTestingGemini, setIsTestingGemini] = useState(false);
-  const [geminiTestResult, setGeminiTestResult] = useState<{ success: boolean; message?: string } | null>(null);
+  const [geminiTestResult, setGeminiTestResult] = useState<GeminiTestConnectionResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-expand if error occurs or client ID is empty
@@ -89,10 +89,10 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const handleTestGeminiKey = async () => {
     setIsTestingGemini(true);
     setGeminiTestResult(null);
-    const res = await geminiService.testConnection(geminiApiKeyInput.trim());
+    const res = await geminiService.testConnection(geminiApiKeyInput.trim(), language);
     setIsTestingGemini(false);
     setGeminiTestResult(res);
-    if (res.success) {
+    if (res.success || res.diagnostics?.isKeyValidAndSaved) {
       geminiService.setApiKey(geminiApiKeyInput.trim());
     }
   };
@@ -576,23 +576,47 @@ export default function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
 
               {geminiTestResult && (
-                <div
-                  className={`p-2.5 rounded-lg border text-[11px] flex items-center space-x-2 ${
-                    geminiTestResult.success
-                      ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200'
-                      : 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 text-rose-800 dark:text-rose-200'
-                  }`}
-                >
+                <div className="space-y-2">
                   {geminiTestResult.success ? (
-                    <>
+                    <div className="p-2.5 rounded-lg border text-[11px] flex items-center space-x-2 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-200">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span>{t('gemini.connectionSuccess')}</span>
-                    </>
+                    </div>
                   ) : (
-                    <>
-                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
-                      <span>{t('gemini.connectionFailed')}: {geminiTestResult.message}</span>
-                    </>
+                    <div className="space-y-2">
+                      {/* Technical error display showing the raw response/JSON */}
+                      <div className="p-2.5 rounded-xl border bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 text-rose-800 dark:text-rose-200 text-[11px] space-y-1.5">
+                        <div className="flex items-center space-x-1.5 font-semibold">
+                          <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                          <span>{t('gemini.connectionFailed')}</span>
+                        </div>
+                        <pre className="font-mono text-[10px] bg-stone-900 text-stone-200 dark:bg-black p-2.5 rounded-lg overflow-x-auto whitespace-pre-wrap max-h-32 border border-stone-800">
+                          {geminiTestResult.message}
+                        </pre>
+                      </div>
+
+                      {/* Clear human-friendly explanation card */}
+                      {geminiTestResult.diagnostics && (
+                        <div className="p-3 rounded-xl border border-amber-300 dark:border-amber-700/80 bg-amber-50/90 dark:bg-amber-950/40 text-[11px] space-y-1.5 text-amber-950 dark:text-amber-200">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-bold flex items-center space-x-1.5 text-amber-900 dark:text-amber-300">
+                              <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                              <span>{geminiTestResult.diagnostics.headline}</span>
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-200 dark:bg-amber-900/80 text-amber-900 dark:text-amber-200 shrink-0">
+                              {geminiTestResult.diagnostics.badge}
+                            </span>
+                          </div>
+                          <p className="leading-relaxed text-stone-700 dark:text-stone-300">
+                            {geminiTestResult.diagnostics.explanation}
+                          </p>
+                          <div className="pt-1.5 border-t border-amber-200/80 dark:border-amber-800/60 text-[10px] text-amber-900 dark:text-amber-300">
+                            <span className="font-bold">{language.startsWith('pt') ? 'O que fazer:' : 'Recommended action:'}</span>{' '}
+                            {geminiTestResult.diagnostics.actionableTip}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
