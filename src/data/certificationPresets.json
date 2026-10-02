@@ -314,5 +314,296 @@
         "description": "Domain 5: Variables, outputs, data sources, resource types, and built-in functions."
       }
     ]
+  },
+  {
+    "id": "preset-aws-soa-c03",
+    "name": "AWS Certified CloudOps Engineer – Associate (SOA-C03)",
+    "code": "SOA-C03",
+    "version": "",
+    "color": "#00b894",
+    "icon": "Server",
+    "examDurationMinutes": 130,
+    "accommodationMinutes": 30,
+    "questionCount": 65,
+    "passingScore": "720/1000",
+    "description": "Associate-level certification (formerly SysOps Administrator) for cloud operations engineers deploying, managing, and operating workloads on AWS. Validates ability to monitor, remediate, ensure reliability, automate provisioning, and secure AWS environments. 1+ years hands-on experience. 65 questions (50 scored + 15 unscored), 130 minutes, 720/1000 passing score.",
+    "exportIntroQuestions": "## About this document\n\nThis document is a collection of practice exam questions for the **AWS Certified CloudOps Engineer – Associate (SOA-C03)** certification. The questions were selected because they represent realistic operational scenarios commonly encountered when managing and operating workloads on AWS.\n\n### Certification context\n\nThis certification validates the ability to deploy, manage, and operate scalable systems on AWS, including topics such as:\n\n* Implementing monitoring, logging, and automated remediation (CloudWatch, EventBridge)\n* Designing for high availability, scalability, and disaster recovery\n* Automating infrastructure provisioning (CloudFormation, CDK, Systems Manager)\n* Implementing security controls and compliance policies\n* Configuring networking and content delivery (VPC, Route 53, CloudFront)\n\n### About the questions\n\nEach question in this document is independent and should be analyzed as a standalone scenario. Practice exams intentionally present isolated situations, and questions may appear in any order during the actual certification exam. Information from one question should never be assumed to apply to another.\n\nFor each scenario, this document includes:\n\n* The original practice exam question.\n* An explanation of the operational reasoning behind the correct answer.\n* A discussion of why the remaining options are less appropriate for the stated requirements.\n\n### Learning objective\n\nThe primary goal of this material is to develop operational reasoning rather than memorization. The focus should be on understanding the monitoring, automation, and reliability requirements presented in each scenario, identifying the AWS services and operational patterns that best satisfy those requirements, and recognizing the trade-offs involved.\n\nBy studying the decision-making process behind each answer, readers can build the operational skills expected for the AWS certification exam.",
+    "exportIntroTranscripts": "## About this document\n\nThis document contains technical summaries of lesson transcripts related to the **AWS Certified CloudOps Engineer – Associate (SOA-C03)** certification.\n\n### Purpose\nOrganizes and synthesizes lesson content in a structured format for quick review and deeper understanding of the concepts presented.",
+    "exportIntroChat": "## About this document\n\nThis document contains AI study conversations related to the **AWS Certified CloudOps Engineer – Associate (SOA-C03)** certification.\n\n### Purpose\nRecords discussions and explanations generated during interactive AI study sessions, serving as complementary reference material.",
+    "domains": [
+      {
+        "name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+        "order": 1,
+        "description": "Domain 1 (22%): Implement metrics, alarms, and filters using CloudWatch. Collect and analyze logs. Remediate issues based on monitoring data. Implement performance optimization strategies."
+      },
+      {
+        "name": "Reliability and Business Continuity",
+        "order": 2,
+        "description": "Domain 2 (22%): Implement scalability and elasticity, design highly available and resilient environments, implement backup and restore strategies."
+      },
+      {
+        "name": "Deployment, Provisioning, and Automation",
+        "order": 3,
+        "description": "Domain 3 (22%): Provision and maintain cloud resources (CloudFormation, CDK, Service Catalog). Automate manual or repeatable processes. Manage multi-account, multi-Region architectures."
+      },
+      {
+        "name": "Security and Compliance",
+        "order": 4,
+        "description": "Domain 4 (16%): Implement and manage security and compliance policies. Implement data and infrastructure protection strategies."
+      },
+      {
+        "name": "Networking and Content Delivery",
+        "order": 5,
+        "description": "Domain 5 (18%): Implement networking features and connectivity (VPC, Direct Connect, VPN). Configure domains, DNS, and content delivery."
+      }
+    ]
+  },
+  {
+    "id": "preset-aws-scs-c03",
+    "name": "AWS Certified Security – Specialty (SCS-C03)",
+    "code": "SCS-C03",
+    "version": "",
+    "color": "#7f8c9c",
+    "icon": "Shield",
+    "examDurationMinutes": 170,
+    "accommodationMinutes": 30,
+    "questionCount": 65,
+    "passingScore": "750/1000",
+    "description": "Specialty certification for security practitioners securing AWS workloads. Validates ability to implement detection, incident response, infrastructure security, IAM, data protection, and governance. 3-5 years experience securing cloud solutions. 65 questions (50 scored + 15 unscored), 170 minutes, 750/1000 passing score.",
+    "exportIntroQuestions": "## About this document\n\nThis document is a collection of practice exam questions for the **AWS Certified Security – Specialty (SCS-C03)** certification. The questions were selected because they represent realistic security scenarios commonly encountered when securing workloads and architectures on AWS.\n\n### Certification context\n\nThis certification validates the ability to design and implement security solutions in the AWS Cloud, including topics such as:\n\n* Designing security monitoring and alerting (GuardDuty, Security Hub, CloudTrail)\n* Implementing incident response plans and automated remediation\n* Securing infrastructure at the edge, network, and compute layers\n* Designing authentication and authorization strategies (IAM, SSO, federation)\n* Implementing data protection, encryption, and key management (KMS, CloudHSM)\n* Establishing security governance and compliance frameworks\n\n### About the questions\n\nEach question in this document is independent and should be analyzed as a standalone scenario. Practice exams intentionally present isolated situations, and questions may appear in any order during the actual certification exam. Information from one question should never be assumed to apply to another.\n\nFor each scenario, this document includes:\n\n* The original practice exam question.\n* An explanation of the security reasoning behind the correct answer.\n* A discussion of why the remaining options are less appropriate for the stated requirements.\n\n### Learning objective\n\nThe primary goal of this material is to develop security-focused reasoning rather than memorization. The focus should be on understanding the threat models and compliance requirements presented in each scenario, identifying the AWS security services and controls that best mitigate the risks, and recognizing the trade-offs between security posture, operational complexity, and cost.\n\nBy studying the decision-making process behind each answer, readers can build the specialized security skills expected for the AWS Specialty certification exam.",
+    "exportIntroTranscripts": "## About this document\n\nThis document contains technical summaries of lesson transcripts related to the **AWS Certified Security – Specialty (SCS-C03)** certification.\n\n### Purpose\nOrganizes and synthesizes lesson content in a structured format for quick review and deeper understanding of the concepts presented.",
+    "exportIntroChat": "## About this document\n\nThis document contains AI study conversations related to the **AWS Certified Security – Specialty (SCS-C03)** certification.\n\n### Purpose\nRecords discussions and explanations generated during interactive AI study sessions, serving as complementary reference material.",
+    "domains": [
+      {
+        "name": "Detection",
+        "order": 1,
+        "description": "Domain 1 (16%): Design and implement security monitoring and alerting. Troubleshoot security monitoring. Design logging solutions (CloudTrail, VPC Flow Logs, Config, GuardDuty, Security Hub)."
+      },
+      {
+        "name": "Incident Response",
+        "order": 2,
+        "description": "Domain 2 (14%): Design and implement incident response plans. Detect security threats and anomalies. Respond to compromised resources and credentials."
+      },
+      {
+        "name": "Infrastructure Security",
+        "order": 3,
+        "description": "Domain 3 (18%): Design security controls for edge services (CloudFront, WAF, Shield). Design network security (VPC, security groups, NACLs, Network Firewall). Troubleshoot network connectivity."
+      },
+      {
+        "name": "Identity and Access Management",
+        "order": 4,
+        "description": "Domain 4 (20%): Design authentication and authorization (IAM, SSO, federation, Organizations). Design authorization policies. Troubleshoot access issues."
+      },
+      {
+        "name": "Data Protection",
+        "order": 5,
+        "description": "Domain 5 (18%): Design data encryption strategies (KMS, CloudHSM). Implement key management and rotation. Design data access controls."
+      },
+      {
+        "name": "Security Foundations and Governance",
+        "order": 6,
+        "description": "Domain 6 (14%): Develop security governance strategy (Organizations, SCPs, Control Tower). Implement compliance automation. Manage security findings and remediation."
+      }
+    ]
+  },
+  {
+    "id": "preset-aws-aif-c01",
+    "name": "AWS Certified AI Practitioner (AIF-C01)",
+    "code": "AIF-C01",
+    "version": "",
+    "color": "#a29bfe",
+    "icon": "Zap",
+    "examDurationMinutes": 120,
+    "accommodationMinutes": 30,
+    "questionCount": 85,
+    "passingScore": "700/1000",
+    "description": "Foundational certification validating understanding of AI/ML concepts and generative AI on AWS. For individuals in any role seeking to demonstrate AI literacy. Covers AI fundamentals, generative AI foundations, applications of foundation models, responsible AI, and security of AI solutions. 85 questions, 120 minutes.",
+    "exportIntroQuestions": "## About this document\n\nThis document is a collection of practice exam questions for the **AWS Certified AI Practitioner (AIF-C01)** certification. The questions were selected because they represent foundational AI and generative AI concepts that every practitioner should understand when working with AI services on AWS.\n\n### Certification context\n\nThis certification validates overall understanding of AI, ML, and generative AI on AWS, including topics such as:\n\n* Core AI and machine learning concepts (supervised, unsupervised, reinforcement learning)\n* Generative AI fundamentals (transformers, tokens, embeddings, prompt engineering, RAG)\n* Applications of foundation models and AWS generative AI services (Bedrock, SageMaker, Q)\n* Responsible AI practices, bias detection, and limitations of AI systems\n* Security, compliance, and governance for AI solutions\n\n### About the questions\n\nEach question in this document is independent and should be analyzed as a standalone scenario. Practice exams intentionally present isolated situations, and questions may appear in any order during the actual certification exam. Information from one question should never be assumed to apply to another.\n\nFor each scenario, this document includes:\n\n* The original practice exam question.\n* An explanation of the reasoning behind the correct answer.\n* A discussion of why the remaining options are less appropriate for the stated requirements.\n\n### Learning objective\n\nThe primary goal of this material is to develop a solid understanding of AI and generative AI concepts rather than memorization. The focus should be on understanding the fundamental principles, identifying the appropriate AWS AI services for common use cases, and recognizing the responsible AI considerations that guide implementation decisions.\n\nBy studying the reasoning behind each answer, readers can build the foundational AI knowledge expected for the AWS AI Practitioner certification exam.",
+    "exportIntroTranscripts": "## About this document\n\nThis document contains technical summaries of lesson transcripts related to the **AWS Certified AI Practitioner (AIF-C01)** certification.\n\n### Purpose\nOrganizes and synthesizes lesson content in a structured format for quick review and deeper understanding of the concepts presented.",
+    "exportIntroChat": "## About this document\n\nThis document contains AI study conversations related to the **AWS Certified AI Practitioner (AIF-C01)** certification.\n\n### Purpose\nRecords discussions and explanations generated during interactive AI study sessions, serving as complementary reference material.",
+    "domains": [
+      {
+        "name": "Fundamentals of AI and ML",
+        "order": 1,
+        "description": "Domain 1 (20%): Explain basic AI/ML concepts, identify practical use cases for AI, describe the ML development lifecycle."
+      },
+      {
+        "name": "Fundamentals of Generative AI",
+        "order": 2,
+        "description": "Domain 2 (24%): Explain foundation models, understand generative AI concepts (transformers, tokens, embeddings, prompt engineering, fine-tuning, RAG)."
+      },
+      {
+        "name": "Applications of Foundation Models",
+        "order": 3,
+        "description": "Domain 3 (28%): Describe design considerations for foundation model applications, choose effective prompt engineering techniques, identify AWS services for generative AI (Bedrock, SageMaker, Q)."
+      },
+      {
+        "name": "Guidelines for Responsible AI",
+        "order": 4,
+        "description": "Domain 4 (14%): Explain responsible AI practices, recognize limitations and biases, describe AWS tools for responsible AI."
+      },
+      {
+        "name": "Security, Compliance, and Governance",
+        "order": 5,
+        "description": "Domain 5 (14%): Identify AWS services and features for securing AI solutions, describe data governance, understand compliance requirements."
+      }
+    ]
+  },
+  {
+    "id": "preset-aws-mla-c01",
+    "name": "AWS Certified Machine Learning Engineer – Associate (MLA-C01)",
+    "code": "MLA-C01",
+    "version": "",
+    "color": "#e84393",
+    "icon": "Zap",
+    "examDurationMinutes": 170,
+    "accommodationMinutes": 30,
+    "questionCount": 85,
+    "passingScore": "720/1000",
+    "description": "Associate-level certification for ML engineers building and deploying ML solutions on AWS. Validates ability to implement ML pipelines, select models, deploy and monitor solutions. Experience with ML on AWS recommended. 85 questions, 170 minutes.",
+    "exportIntroQuestions": "## About this document\n\nThis document is a collection of practice exam questions for the **AWS Certified Machine Learning Engineer – Associate (MLA-C01)** certification. The questions were selected because they represent realistic ML engineering scenarios commonly encountered when building and deploying machine learning solutions on AWS.\n\n### Certification context\n\nThis certification validates the ability to build, train, deploy, and monitor ML solutions on AWS, including topics such as:\n\n* Preparing and engineering data for ML workloads (feature stores, data quality)\n* Selecting and training ML models (SageMaker, Bedrock, built-in algorithms)\n* Deploying models to production (real-time endpoints, batch inference)\n* Orchestrating end-to-end ML pipelines (SageMaker Pipelines, Step Functions)\n* Monitoring model performance, detecting drift, and ensuring security\n\n### About the questions\n\nEach question in this document is independent and should be analyzed as a standalone scenario. Practice exams intentionally present isolated situations, and questions may appear in any order during the actual certification exam. Information from one question should never be assumed to apply to another.\n\nFor each scenario, this document includes:\n\n* The original practice exam question.\n* An explanation of the ML engineering reasoning behind the correct answer.\n* A discussion of why the remaining options are less appropriate for the stated requirements.\n\n### Learning objective\n\nThe primary goal of this material is to develop ML engineering reasoning rather than memorization. The focus should be on understanding the data, model, and deployment requirements presented in each scenario, identifying the AWS ML services and patterns that best satisfy those requirements, and recognizing the trade-offs between accuracy, latency, cost, and operational complexity.\n\nBy studying the decision-making process behind each answer, readers can build the ML engineering skills expected for the AWS certification exam.",
+    "exportIntroTranscripts": "## About this document\n\nThis document contains technical summaries of lesson transcripts related to the **AWS Certified Machine Learning Engineer – Associate (MLA-C01)** certification.\n\n### Purpose\nOrganizes and synthesizes lesson content in a structured format for quick review and deeper understanding of the concepts presented.",
+    "exportIntroChat": "## About this document\n\nThis document contains AI study conversations related to the **AWS Certified Machine Learning Engineer – Associate (MLA-C01)** certification.\n\n### Purpose\nRecords discussions and explanations generated during interactive AI study sessions, serving as complementary reference material.",
+    "domains": [
+      {
+        "name": "Data Preparation for ML",
+        "order": 1,
+        "description": "Domain 1 (28%): Ingest and store data for ML workloads, transform and engineer features, ensure data quality and governance for ML."
+      },
+      {
+        "name": "ML Model Development",
+        "order": 2,
+        "description": "Domain 2 (26%): Choose modeling approach (SageMaker, Bedrock), train and evaluate ML models, select and refine models."
+      },
+      {
+        "name": "Deployment and Orchestration of ML Workflows",
+        "order": 3,
+        "description": "Domain 3 (22%): Select deployment infrastructure (endpoints, batch), create and script ML pipelines, orchestrate end-to-end workflows."
+      },
+      {
+        "name": "ML Solution Monitoring, Maintenance, and Security",
+        "order": 4,
+        "description": "Domain 4 (24%): Monitor model performance (drift, bias), maintain ML solutions, secure ML workloads."
+      }
+    ]
+  },
+  {
+    "id": "preset-aws-ans-c01",
+    "name": "AWS Certified Advanced Networking – Specialty (ANS-C01)",
+    "code": "ANS-C01",
+    "version": "",
+    "color": "#74b9ff",
+    "icon": "Server",
+    "examDurationMinutes": 170,
+    "accommodationMinutes": 30,
+    "questionCount": 65,
+    "passingScore": "750/1000",
+    "description": "Specialty certification for networking specialists designing and implementing AWS and hybrid IT network architectures. Validates advanced networking skills including multi-region, multi-account, and hybrid connectivity. 5+ years networking experience + AWS networking hands-on. 65 questions, 170 minutes, 750/1000 passing score.",
+    "exportIntroQuestions": "## About this document\n\nThis document is a collection of practice exam questions for the **AWS Certified Advanced Networking – Specialty (ANS-C01)** certification. The questions were selected because they represent realistic networking scenarios commonly encountered when designing and implementing complex network architectures on AWS.\n\n### Certification context\n\nThis certification validates advanced ability to design and implement AWS and hybrid network architectures at scale, including topics such as:\n\n* Designing edge network services (CloudFront, Global Accelerator, Route 53)\n* Implementing hybrid connectivity (Direct Connect, Site-to-Site VPN, Transit Gateway)\n* Configuring routing, BGP, and multi-account/multi-region network topologies\n* Implementing encryption in transit and network security controls\n* Monitoring and optimizing network performance (VPC Flow Logs, Traffic Mirroring)\n\n### About the questions\n\nEach question in this document is independent and should be analyzed as a standalone scenario. Practice exams intentionally present isolated situations, and questions may appear in any order during the actual certification exam. Information from one question should never be assumed to apply to another.\n\nFor each scenario, this document includes:\n\n* The original practice exam question.\n* An explanation of the networking reasoning behind the correct answer.\n* A discussion of why the remaining options are less appropriate for the stated requirements.\n\n### Learning objective\n\nThe primary goal of this material is to develop advanced networking reasoning rather than memorization. The focus should be on understanding the connectivity requirements and constraints presented in each scenario, identifying the AWS networking services and configurations that best satisfy those requirements, and recognizing the trade-offs between performance, cost, and complexity.\n\nBy studying the decision-making process behind each answer, readers can build the specialized networking skills expected for the AWS Specialty certification exam.",
+    "exportIntroTranscripts": "## About this document\n\nThis document contains technical summaries of lesson transcripts related to the **AWS Certified Advanced Networking – Specialty (ANS-C01)** certification.\n\n### Purpose\nOrganizes and synthesizes lesson content in a structured format for quick review and deeper understanding of the concepts presented.",
+    "exportIntroChat": "## About this document\n\nThis document contains AI study conversations related to the **AWS Certified Advanced Networking – Specialty (ANS-C01)** certification.\n\n### Purpose\nRecords discussions and explanations generated during interactive AI study sessions, serving as complementary reference material.",
+    "domains": [
+      {
+        "name": "Network Design",
+        "order": 1,
+        "description": "Domain 1 (30%): Design edge network architecture (CloudFront, Global Accelerator, Route53), design DNS solutions, design connectivity for hybrid and multi-account environments (Transit Gateway, Direct Connect)."
+      },
+      {
+        "name": "Network Implementation",
+        "order": 2,
+        "description": "Domain 2 (26%): Implement routing (VPC route tables, BGP), implement encryption in transit (TLS, IPsec VPN), implement network connectivity (VPC peering, PrivateLink, Direct Connect)."
+      },
+      {
+        "name": "Network Management and Operations",
+        "order": 3,
+        "description": "Domain 3 (20%): Maintain routing and connectivity, monitor and analyze network traffic (VPC Flow Logs, Traffic Mirroring), optimize network resources."
+      },
+      {
+        "name": "Network Security, Compliance, and Governance",
+        "order": 4,
+        "description": "Domain 4 (24%): Implement security features (security groups, NACLs, WAF, Network Firewall), validate and audit security, automate compliance."
+      }
+    ]
+  },
+  {
+    "id": "preset-aws-aip-c01",
+    "name": "AWS Certified Generative AI Developer – Professional (AIP-C01)",
+    "code": "AIP-C01",
+    "version": "",
+    "color": "#6c5ce7",
+    "icon": "Zap",
+    "examDurationMinutes": 170,
+    "accommodationMinutes": 30,
+    "questionCount": 75,
+    "passingScore": "750/1000",
+    "description": "Professional-level certification for GenAI developers integrating foundation models into applications and business workflows on AWS. Validates ability to design RAG solutions, implement agentic AI, apply prompt engineering, optimize GenAI apps, and enforce security/governance. Target: 2+ years building production apps on AWS + 1 year hands-on GenAI. 65 scored questions + 10 unscored, 170 minutes, 750/1000 passing score.",
+    "exportIntroQuestions": "## About this document\n\nThis document is a collection of practice exam questions for the **AWS Certified Generative AI Developer - Professional (AIP-C01)** certification. The questions were selected because they represent realistic architectural scenarios commonly encountered when designing and implementing generative AI solutions on AWS.\n\n### Certification context\n\nThis certification validates the ability to design, build, and optimize production-ready generative AI solutions on AWS, including topics such as:\n\n* Integrating foundation models into enterprise applications\n* Designing Retrieval-Augmented Generation (RAG) architectures\n* Building AI agents and agentic workflows\n* Implementing vector search and semantic retrieval\n* Customizing and optimizing foundation models\n* Applying AWS best practices for security, scalability, and operational excellence\n\n### About the questions\n\nEach question in this document is independent and should be analyzed as a standalone scenario. Practice exams intentionally present isolated situations, and questions may appear in any order during the actual certification exam. Information from one question should never be assumed to apply to another.\n\nFor each scenario, this document includes:\n\n* The original practice exam question.\n* An explanation of the architectural reasoning behind the correct answer.\n* A discussion of why the remaining options are less appropriate for the stated requirements.\n\n### Learning objective\n\nThe primary goal of this material is to develop architectural reasoning rather than memorization. The focus should be on understanding the business and technical requirements presented in each scenario, identifying the AWS services and design patterns that best satisfy those requirements, and recognizing the trade-offs that make one solution more appropriate than the alternatives.\n\nBy studying the decision-making process behind each answer, readers can build the analytical skills expected for the AWS certification exam.",
+    "exportIntroTranscripts": "## About this document\n\nThis document contains technical summaries of lesson transcripts related to the **AWS Certified Generative AI Developer - Professional (AIP-C01)** certification.\n\n### Purpose\nOrganizes and synthesizes lesson content in a structured format for quick review and deeper understanding of the concepts presented.",
+    "exportIntroChat": "## About this document\n\nThis document contains AI study conversations related to the **AWS Certified Generative AI Developer - Professional (AIP-C01)** certification.\n\n### Purpose\nRecords discussions and explanations generated during interactive AI study sessions, serving as complementary reference material.",
+    "domains": [
+      {
+        "name": "Foundation Model Integration, Data Management, and Compliance",
+        "order": 1,
+        "description": "Domain 1 (31%): Task 1.1 Analyze requirements and design GenAI solutions. Task 1.2 Select and configure FMs (benchmarks, cross-region inference, lifecycle). Task 1.3 Implement data validation and processing pipelines for FM consumption. Task 1.4 Design and implement vector store solutions. Task 1.5 Design retrieval mechanisms for FM augmentation (RAG). Task 1.6 Implement prompt engineering strategies and governance."
+      },
+      {
+        "name": "Implementation and Integration",
+        "order": 2,
+        "description": "Domain 2 (26%): Task 2.1 Implement agentic AI solutions and tool integrations (Strands Agents, MCP, multi-agent systems). Task 2.2 Implement model deployment strategies (Lambda, Bedrock, SageMaker endpoints). Task 2.3 Design enterprise integration architectures. Task 2.4 Implement FM API integrations. Task 2.5 Implement application integration patterns and development tools."
+      },
+      {
+        "name": "AI Safety, Security, and Governance",
+        "order": 3,
+        "description": "Domain 3 (20%): Task 3.1 Implement input and output safety controls (guardrails, content moderation, hallucination reduction). Task 3.2 Implement data security and privacy controls (VPC, PII detection, data masking). Task 3.3 Implement AI governance and compliance mechanisms (model cards, data lineage). Task 3.4 Implement responsible AI principles."
+      },
+      {
+        "name": "Operational Efficiency and Optimization for GenAI Applications",
+        "order": 4,
+        "description": "Domain 4 (12%): Task 4.1 Implement cost optimization and resource efficiency (token management, caching, tiered models). Task 4.2 Optimize application performance (latency, retrieval, throughput). Task 4.3 Implement monitoring systems for GenAI applications."
+      },
+      {
+        "name": "Testing, Validation, and Troubleshooting",
+        "order": 5,
+        "description": "Domain 5 (11%): Task 5.1 Implement evaluation systems for GenAI (quality metrics, A/B testing, LLM-as-a-Judge, RAG evaluation, agent performance). Task 5.2 Troubleshoot GenAI applications (context overflow, API errors, latency, drift)."
+      }
+    ]
+  },
+  {
+    "id": "preset-aws-aib-c01",
+    "name": "AWS Certified AI Business Strategist (AIB-C01)",
+    "code": "AIB-C01",
+    "version": "",
+    "color": "#00cec9",
+    "icon": "Zap",
+    "examDurationMinutes": 130,
+    "accommodationMinutes": 30,
+    "questionCount": 85,
+    "passingScore": "700/1000",
+    "description": "Business-focused certification validating the ability to translate AI capabilities into business outcomes, establish responsible AI practices, and drive AI adoption at scale. For professionals who evaluate, champion, or scale AI initiatives (product/program managers, sales, line-of-business leaders, consultants, analysts, marketers). Prioritizes strategic decision-making over technical implementation; no coding or AWS implementation experience required. 85 questions, 130 minutes, 700/1000 passing score. Beta exam (AIB-C01).",
+    "exportIntroQuestions": "## About this document\n\nThis document is a collection of practice exam questions for the **AWS Certified AI Business Strategist (AIB-C01)** certification. The questions were selected because they represent the strategic decision-making skills that every professional driving AI adoption should understand: evaluating investments, building business cases, applying governance, and scaling initiatives.\n\n### Certification context\n\nThis certification validates the ability to translate AI capabilities into business outcomes, including topics such as:\n\n* Foundational AI concepts and terminology applied to business contexts\n* AI strategy, business value creation, KPIs, and ROI frameworks\n* Responsible AI principles and governance structures for AI initiatives\n* Organizational AI readiness, change management, and enterprise transformation\n* High-level awareness of AWS AI services (Bedrock, SageMaker AI, Amazon Quick) and frameworks (AWS CAF, Well-Architected Responsible AI Lens) at a strategic level\n\n### About the questions\n\nEach question in this document is independent and should be analyzed as a standalone scenario. Practice exams intentionally present isolated situations, and questions may appear in any order during the actual certification exam. Information from one question should never be assumed to apply to another.\n\nFor each scenario, this document includes:\n\n* The original practice exam question.\n* An explanation of the reasoning behind the correct answer.\n* A discussion of why the remaining options are less appropriate for the stated requirements.\n\n### Learning objective\n\nThe primary goal of this material is to develop sound business judgment for AI decisions rather than memorization. The focus should be on understanding how to identify where AI fits, how to fund and prioritize initiatives, how to govern adoption and manage risk, and how to scale what works from pilot to production.\n\nBy studying the reasoning behind each answer, readers can build the strategic decision-making skills expected for the AWS Certified AI Business Strategist certification exam.",
+    "exportIntroTranscripts": "## About this document\n\nThis document contains technical summaries of lesson transcripts related to the **AWS Certified AI Business Strategist (AIB-C01)** certification.\n\n### Purpose\nOrganizes and synthesizes lesson content in a structured format for quick review and deeper understanding of the concepts presented.",
+    "exportIntroChat": "## About this document\n\nThis document contains AI study conversations related to the **AWS Certified AI Business Strategist (AIB-C01)** certification.\n\n### Purpose\nRecords discussions and explanations generated during interactive AI study sessions, serving as complementary reference material.",
+    "domains": [
+      {
+        "name": "AI Fundamentals and Literacy",
+        "order": 1,
+        "description": "Domain 1 (24%): Apply foundational AI concepts and terminology to business contexts, select appropriate AI solution types based on business requirements and constraints, use generative AI techniques (prompt engineering, model adaptation) to achieve business outcomes."
+      },
+      {
+        "name": "AI Strategy and Business Value Creation",
+        "order": 2,
+        "description": "Domain 2 (28%): Develop and prioritize AI strategies aligned with organizational objectives, measure AI business value using KPIs, ROI frameworks, and baseline metrics, position AI initiatives for competitive advantage and business model transformation."
+      },
+      {
+        "name": "AI Governance and Responsible AI Leadership",
+        "order": 3,
+        "description": "Domain 3 (24%): Apply responsible AI principles when making business decisions that require tradeoffs, establish governance structures and ensure regulatory compliance, identify enterprise AI risks and direct appropriate mitigation strategies."
+      },
+      {
+        "name": "Business Readiness, Leadership, and AI Transformation",
+        "order": 4,
+        "description": "Domain 4 (24%): Assess organizational AI readiness and maturity across people, processes, technology, and governance, evaluate data and infrastructure foundations, lead enterprise-wide change management and build AI-ready workforce capabilities, scale AI initiatives from pilots to enterprise-wide deployments using iterative approaches."
+      }
+    ]
   }
 ]
